@@ -2,7 +2,7 @@
  * Site header
  */
 .site-header {
-  border-top: 5px solid $grey-color-dark;
+  // border-top: 5px solid $grey-color-dark;
   border-bottom: 1px solid $grey-color-light;
   min-height: $spacing-unit * 1.865;
 
@@ -20,7 +20,7 @@
 
   &,
   &:visited {
-    color: $grey-color-dark;
+    color: $text-color;
   }
 }
 
@@ -117,8 +117,20 @@
 
 .contact-list,
 .social-media-list {
+  // display: flex;
+  // justify-content: center; // This centers the icons horiontally
+  // align-items: center; // This centersthe icone vertically
   list-style: none;
   margin-left: 0;
+  padding: 0; // Optionally, removes default padding if needed.
+  // If you want to add space between the icons, you can target the child elements (assuming they are <li> elements)
+  // li {
+  //   margin-right: $spacing-unit / 2; // Adjust spacing as needed. Remember to handle the last item differently if needed.
+    
+  //   &:last-child {
+  //     margin-right: 0; // Removes margin from the last icon to avoid extra spacing at the end.
+  //   }
+  // }
 }
 
 .footer-col-wrapper {

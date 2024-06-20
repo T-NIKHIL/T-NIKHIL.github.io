@@ -12,9 +12,9 @@ dl, dd, ol, ul, figure {
  * Basic styling
  */
 body {
-  font: 400 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  color: #111;
-  background-color: #fdfdfd;
+  font: 400 16px/1.5 Arial;
+  color: #ffffff;
+  background-color: rgb(0, 0, 0);
   -webkit-text-size-adjust: 100%;
   -webkit-font-feature-settings: "kern" 1;
   -moz-font-feature-settings: "kern" 1;
@@ -85,14 +85,14 @@ h1, h2, h3, h4, h5, h6 {
  * Links
  */
 a {
-  color: #2a7ae2;
+  color: #ffffff;
   text-decoration: none;
 }
 a:visited {
-  color: #1756a9;
+  color: #d9d9d9;
 }
 a:hover {
-  color: #111;
+  color: #ffffff;
   text-decoration: underline;
 }
 .social-media-list a:hover {
@@ -194,7 +194,7 @@ table {
   margin-bottom: 30px;
   width: 100%;
   text-align: left;
-  color: #3f3f3f;
+  color: white;
   border-collapse: collapse;
   border: 1px solid #e8e8e8;
 }
@@ -217,7 +217,6 @@ table td {
  * Site header
  */
 .site-header {
-  border-top: 5px solid #424242;
   border-bottom: 1px solid #e8e8e8;
   min-height: 55.95px;
   position: relative;
@@ -232,7 +231,7 @@ table td {
   float: left;
 }
 .site-title, .site-title:visited {
-  color: #424242;
+  color: #ffffff;
 }
 
 .site-nav {
@@ -246,7 +245,7 @@ table td {
   display: none;
 }
 .site-nav .page-link {
-  color: #111;
+  color: #ffffff;
   line-height: 1.5;
 }
 .site-nav .page-link:not(:last-child) {
@@ -257,7 +256,7 @@ table td {
     position: absolute;
     top: 9px;
     right: 15px;
-    background-color: #fdfdfd;
+    background-color: rgb(0, 0, 0);
     border: 1px solid #e8e8e8;
     border-radius: 5px;
     text-align: right;
@@ -317,6 +316,7 @@ table td {
 .social-media-list {
   list-style: none;
   margin-left: 0;
+  padding: 0;
 }
 
 .footer-col-wrapper {
