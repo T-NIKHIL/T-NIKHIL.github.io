@@ -3,37 +3,30 @@
 
   <div class="wrapper">
 
-    <!-- <h2 class="footer-heading">{{ site.title | escape }}</h2> -->
-
-    <!-- <div class="footer-col-wrapper">
-      <div class="footer-col footer-col-1">
-        <ul class="contact-list">
-          <li class="p-name">
-            {%- if site.author -%}
-              {{ site.author | escape }}
-            {%- else -%}
-              {{ site.title | escape }}
-            {%- endif -%}
-            </li>
-            {%- if site.email -%}
-            <li><a class="u-email" href="mailto:{{ site.email }}">{{ site.email }}</a></li>
-            {%- endif -%}
-        </ul>
-      </div> -->
-
-      <div class="footer-col footer-col-2">
-        {%- include social.html -%}
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <!-- <p class="feed-subscribe">
+          <a href="{{ site.feed.path | default: 'feed.xml' | absolute_url }}">
+            <svg class="svg-icon orange">
+              <use xlink:href="{{ 'assets/minima-social-icons.svg#rss' | relative_url }}"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p> -->
+        <div class="social-links">
+          {%- include social.html -%}
+        </div>
+        {%- if site.author %}
+          <ul class="contact-list">
+            {% if site.author.email -%}
+            <p align="center">
+              Email : <a class="u-email" href="mailto:{{ site.author.email }}">{{ site.author.email }}</a>
+            </p>
+            {%- endif %}
+          </ul>
+        {%- endif %}
+          <p align="center"> Inspired from <a href="https://github.com/jekyll/minima">Jekyll Minima</a>.
+        </p>
       </div>
-
-      <div class="footer-col footer-col-3">
-        <p>© {{ site.time | date: "%Y" }} {{ site.title | escape }} </p>
-        <p> Inspired from Jekyll Minima</p>
-
-      </div>
-
-      <!-- <div class="footer-col footer-col-3">
-        <p>{{- site.description | escape -}}</p>
-      </div> -->
     </div>
 
   </div>
