@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Courses
-permalink: /courses/
+title: Teaching
+permalink: /teaching/
 ---
 
 Under Construction
