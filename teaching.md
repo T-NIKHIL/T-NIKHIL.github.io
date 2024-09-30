@@ -12,7 +12,7 @@ Here are some tutorials I have created over the course of my Ph.D.
   <li>
     <span class="post-meta">{{ '2024-08-26' | date: date_format }}</span>
     <h3>
-      <a class="post-link" href="https://colab.research.google.com/drive/1CQ5z-zfUY3PQJgZRrk-Bd632hJ476Nih">
+      <a class="post-link" href="https://colab.research.google.com/drive/1CQ5z-zfUY3PQJgZRrk-Bd632hJ476Nih" style="color: #0055ff">
         PyTorch vs TensorFlow: A comparison
       </a>
     </h3>
