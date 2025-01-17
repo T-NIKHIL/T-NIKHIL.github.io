@@ -9,7 +9,14 @@ permalink: /research/
     <p><strong><a href="https://doi.org/10.1016/j.bpj.2022.11.2941" style="color: #0055ff">
       ReLMM : Reinforcement Learning Optimizes Feature Selection in Material Models
     </a></strong></p>
-    <p align='justify'> Stay Tuned ! Manuscipt in Preparation !</p>
+    <p align='justify'> In this work we have developed a data driven model 
+	to identify a near minimal subset of descriptors that are most correlated 
+	with the target variable while maintaining target variable prediction accuracy. 
+	We have demonstrated the capabilities of the model on a synthetic multiscale 
+	dataset and on a hybrid metal halide perovskite dataset. We compared the results 
+	of our model to other feature selection algorithms like LASSO and XGBoost and 
+	have observed our model perfoms on par, if not better than these
+	models in terms of finding the near minimal subset.</p>
     <p>Authors: <a href="https://scholar.google.com/citations?user=2ewiheKHM4gC&hl=en" style="color: #0055ff">Nikhil Thota*</a>, 
                   <a href="https://scholar.google.com/citations?user=gH4cHSYAAAAJ&hl=en" style="color: #0055ff">Maitreyee Sharma Priyadarshini*</a>, 
                   <a href="https://scholar.google.com/citations?hl=en&user=dFKxViMAAAAJ" style="color: #0055ff">Rigoberto Hernandez</a>
@@ -17,7 +24,7 @@ permalink: /research/
     * Equal Contribution
   </div>
   <div style="margin-left: 20px; margin-top: 5px">
-    <!-- <img src="LINK_TO_SECOND_ARTICLE_IMAGE" alt="Article TOC" style="width: 100px;"> -->
+    <img src="/assets/ReLMM_toc.pdf" alt="Article TOC" style="width: 100px;">
     <img alt="Article TOC" style="width: 100px;">
   </div>
 </div>
