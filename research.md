@@ -24,7 +24,7 @@ permalink: /research/
     * Equal Contribution
   </div>
   <div style="margin-left: 20px; margin-top: 5px">
-    <img src="/assets/ReLMM_toc.pdf" alt="Article TOC" style="width: 100px;">
+    <img src="/assets/ReLMM_toc.pdf" alt="Article TOC" style="width: 250px; height: 125 px">
   </div>
 </div>
 
