@@ -25,7 +25,6 @@ permalink: /research/
   </div>
   <div style="margin-left: 20px; margin-top: 5px">
     <img src="/assets/ReLMM_toc.pdf" alt="Article TOC" style="width: 100px;">
-    <img alt="Article TOC" style="width: 100px;">
   </div>
 </div>
 
