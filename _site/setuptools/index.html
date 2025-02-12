@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Nikhil Kumar Thota</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Nikhil Kumar Thota" />
+<meta name="author" content="T-NIKHIL" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/setuptools/" />
+<meta property="og:url" content="http://localhost:4000/setuptools/" />
+<meta property="og:site_name" content="Nikhil Kumar Thota" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Nikhil Kumar Thota" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"T-NIKHIL"},"headline":"Nikhil Kumar Thota","url":"http://localhost:4000/setuptools/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Nikhil Kumar Thota" />
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Nikhil Kumar Thota</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/cv/">CV</a><a class="page-link" href="/research/">Research</a><a class="page-link" href="/blogs/">Blogs</a><a class="page-link" href="/sports/">Sports</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <!-- <header class="post-header">
+    <h1 class="post-title"></h1>
+  </header> -->
+
+  <div class="post-content">
+    <p>This guide serves as a short summary of some popular guides and documentation (referenced below) 
+I have read when learning how to build a python package. Any views expressed in this article are my own.</p>
+
+<p align="justify">
+    Python packages provide an easy way for users to import the 
+    necessary methods and classes in your code through the python <em>import</em> function.
+    A built python package is stored as a <em>python wheel</em> (.whl) 
+    which is a ZIP-format archive, containing all the files 
+    necessary to install your python package. 
+    <em>Wheels</em> are the latest standard for storing python packages, replacing <em>eggs</em>.
+    Once a <em>wheel</em> is generated it can be distributed locally or 
+    pushed to the <em>Python Package Index (PyPI)</em> which is global server 
+    hosting python software. If you have ever done <em>pip install X</em>, 
+    then <em>pip</em> would most likely be downloading from PyPI.
+</p>
+
+<h3 id="build-frontend-vs-build-backend">Build Frontend vs Build Backend</h3>
+
+<p align="justify">
+    Those familiar using <em>pip</em> should be aware that it
+    cannot directly convert your code into a python package. 
+    That is the job of a <em>build backend</em>.
+    <em>pip</em> and <em>build</em> are examples of 
+    what the community calls as <em>build frontends</em>, 
+    tools that help install python packages.
+    In the background these <em>build frontend</em> tools identify the 
+    dependencies of the package you requested and attempt 
+    to resolve any dependency conflicts among the dependencies. 
+    They do so by downloading the <em>source distribution</em> for each dependency
+    and calling the build backend on each to install the dependency 
+    and check for conflicts. Tools like <em>build</em> create an environment
+    with the appropriate python packages that will invoked by the 
+    <em>build backend</em> tools (called setup dependencies), 
+    during the installation of your python code (called runtime dependencies) 
+    and finally during testing (called test dependencies).
+</p>
+
+<p align="justify">
+    At this point I should probably mention the subtle distinction
+    between a <em>source</em> and <em>built distribution</em>. 
+    A <em>source distribution</em> is an archive file (stored as .tar.gz) 
+    that contains your source code and metadata. 
+    It is not platform specific (ex:Windows, Linux) distribution. 
+    While a <em>built distribution</em> is an archive file (stored as .whl)
+    that is specific to your hardware, OS and python version 
+    and can be run directly without having to install python. 
+</p>
+
+<p align="justify">
+    <em>Build backends</em> are responsible for converting your <em> source tree </em>
+    - <em> the directory containing all files and folders relevant to your source code </em> -
+    to either a <em>source</em> or <em>build distribution</em>. Examples of <em>build backends</em>
+    are <em>flit-core, hatchling, maturin, steuptools</em> and <em>poetry</em>. 
+    In this tutorial we will be focusing on using <em>setuptools</em>.
+</p>
+
+<h4 id="step-1--pip-install-build">Step 1 : <em>pip install build</em></h4>
+
+<p>While we can invoke <em>setuptools</em> directly, it is easier and preferred 
+to invoke it through the python <em>build</em> module. To start make sure 
+you have <em>build</em> installed in your python environment type 
+<code class="language-plaintext highlighter-rouge">pip install --upgrade build</code> in your terminal.</p>
+
+<h4 id="step-2--structure-your-codebase">Step 2 : Structure your codebase</h4>
+
+<p>Now for the purpose of this demo we create a test_package directory with following layout.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>test_package/
+├── pyproject.toml
+├── src/
+│   └── test_package/
+│       ├── __init__.py
+│       └── math_operations.py
+├── tests/
+│   ├── test_add.py
+│   ├── test_multiply.py
+│   └── test_exp.py
+├── LICENSE
+├── README.md
+└── test_package.yml
+</code></pre></div></div>
+
+<p>In this tutorial we will be focusing on <em>pyproject.toml</em> and the <em>src</em> directory. 
+In math_operations.py lets define some simple math operations :</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># math_operations.py
+</span><span class="kn">import</span> <span class="n">numpy</span>
+
+<span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">+</span><span class="n">y</span>
+
+<span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span>
+
+<span class="k">def</span> <span class="nf">exp</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">__init__.py</code> is a file that is required for the test_package directory
+to be registered as a module which allows us to write commands like : 
+<code class="language-plaintext highlighter-rouge">from test_package.math_operations import add</code>. 
+It can also can store information related to your source code such 
+as authors, license and package version. Here is a sample <code class="language-plaintext highlighter-rouge">__init__.py</code> layout:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># __init__.py
+</span><span class="n">__author__</span> <span class="o">=</span> <span class="sh">"</span><span class="s">your_name</span><span class="sh">"</span>
+<span class="n">__license__</span><span class="o">=</span> <span class="sh">"</span><span class="s">MIT</span><span class="sh">'"</span>
+<span class="n">__version__</span><span class="o">=</span> <span class="sh">"</span><span class="s">0.0.1</span><span class="sh">"</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="sh">"</span><span class="s">add</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">multiply</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">exp</span><span class="sh">"</span><span class="p">]</span> 
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">__all__</code> entry is used to specify what all modules should be 
+imported when a user does a wildcard import.</p>
+
+<h4 id="step-3--write-the-pyprojecttoml-file">Step 3 : Write the <em>pyproject.toml</em> file</h4>
+
+<p>This file tells the <em>build frontend</em> tools, what <em>build backend</em> 
+to use which in this case is setuptools. As a side note, for those familiar
+with using <em>setup.py</em> or <em>setup.cfg</em> for configuring the build
+of their <em>source tree</em> should note that this practice is slowly getting
+depreciated. Please refer to this 
+<a href="https://blog.ganssle.io/articles/2021/10/setup-py-deprecated.html"> blog post</a>
+for more details. Below shows a very simple <em>pyproject.toml</em> file that 
+covers the basic required items. For more advanced utilities I would refer you 
+to the <em>setuptools</em> documentation. For instance this does not cover how to 
+include tools like <em>pytest</em> unit testing and how to incorporate linting 
+tools. When including these tools make sure to include a 
+<code class="language-plaintext highlighter-rouge">[project.optional-dependencies]</code>section.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># pyproject.toml
+</span><span class="p">[</span><span class="n">build</span><span class="o">-</span><span class="n">system</span><span class="p">]</span>
+<span class="n">requires</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">setuptools</span><span class="sh">"</span><span class="p">]</span>
+<span class="n">build</span><span class="o">-</span><span class="n">backend</span><span class="o">=</span><span class="sh">"</span><span class="s">setuptools.build_meta</span><span class="sh">"</span>
+
+<span class="p">[</span><span class="n">project</span><span class="p">]</span>
+<span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">test_package</span><span class="sh">"</span>
+<span class="n">authors</span><span class="o">=</span><span class="p">[</span>
+    <span class="p">{</span><span class="n">name</span> <span class="o">=</span> <span class="sh">"</span><span class="s">your_name</span><span class="sh">"</span><span class="p">,</span> <span class="n">email</span> <span class="o">=</span> <span class="sh">"</span><span class="s">your_email@xyz.com</span><span class="sh">"</span><span class="p">},</span>
+<span class="p">]</span>
+<span class="n">description</span> <span class="o">=</span> <span class="sh">"</span><span class="s">your_project_description</span><span class="sh">"</span>
+<span class="n">readme</span><span class="o">=</span><span class="sh">"</span><span class="s">README.md</span><span class="sh">"</span>
+<span class="n">license</span><span class="o">=</span> <span class="p">{</span><span class="n">text</span> <span class="o">=</span> <span class="sh">"</span><span class="s">MIT</span><span class="sh">"</span><span class="p">}</span>
+<span class="n">requires</span><span class="o">-</span><span class="n">python</span><span class="o">=</span><span class="sh">"</span><span class="s">&gt;=3.8</span><span class="sh">"</span>
+<span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">some_keywords</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">separated_by_commas</span><span class="sh">"</span><span class="p">]</span>
+<span class="n">dependencies</span> <span class="o">=</span> <span class="p">[</span>
+          <span class="sh">"</span><span class="s">numpy</span><span class="sh">"</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">dynamic</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">version</span><span class="sh">"</span><span class="p">]</span>
+
+<span class="p">[</span><span class="n">project</span><span class="p">.</span><span class="n">urls</span><span class="p">]</span>
+<span class="n">Homepage</span> <span class="o">=</span> <span class="sh">"</span><span class="s">https://your_website.com</span><span class="sh">"</span>
+<span class="n">Documentation</span> <span class="o">=</span> <span class="sh">"</span><span class="s">https://readthedocs.org</span><span class="sh">"</span>
+<span class="n">Repository</span> <span class="o">=</span> <span class="sh">"</span><span class="s">https://github.com/me/your_git_repo.git</span><span class="sh">"</span>
+
+<span class="p">[</span><span class="n">tool</span><span class="p">.</span><span class="n">setuptools</span><span class="p">.</span><span class="n">dynamic</span><span class="p">]</span>
+<span class="n">version</span><span class="o">=</span><span class="p">{</span><span class="n">attr</span><span class="o">=</span><span class="sh">"</span><span class="s">test_package.__version__</span><span class="sh">"</span><span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="step-4--building-the-wheel-and-source-distribution-using-build">Step 4 : Building the <em>wheel</em> and <em>source distribution</em> using <em>build</em></h4>
+
+<p>Now go back to the directory containing <em>pyproject.toml</em> and in your terminal 
+type <code class="language-plaintext highlighter-rouge">python -m build --wheel</code> to create a <em>built distribution</em> or 
+type <code class="language-plaintext highlighter-rouge">python -m build --sdist</code> to create a <em>source distribution</em>. Both the 
+<em>built</em> and <em>source distributions</em> are located under the <em>dist</em> directory.
+The <em>wheel</em> will be listed with the package version number and python versions 
+as <code class="language-plaintext highlighter-rouge">test_package-0.0.1-py3-none-any.whl</code>.</p>
+
+<p>Once we have the <em>built distribution</em> we can use 
+<em>pip</em> to install the package and its dependencies (which in this case is numpy). 
+To do this go into the <em>dist</em> directory and type 
+<code class="language-plaintext highlighter-rouge">pip install test_package-0.0.1-py3-none-any.whl</code> in your terminal.</p>
+
+<p>Voilá ! you have now created your very own (and maybe first!) python package. 
+You can now type python in your terminal and import the different math 
+functions we have defined.</p>
+
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">user@computer python
+</span><span class="gp">&gt;</span><span class="o">&gt;</span> from test_package import math_operations
+<span class="gp">&gt;</span><span class="o">&gt;</span> math_operations.add<span class="o">(</span>2, 3<span class="o">)</span>
+<span class="go">5
+</span><span class="gp">&gt;</span><span class="o">&gt;</span> math_operations.exp<span class="o">(</span>2<span class="o">)</span>
+<span class="go">7.38905609893065
+</span></code></pre></div></div>
+
+<p>References :<br />
+[1] https://packaging.python.org/en/latest/tutorials/packaging-projects/ <br />
+[2] https://setuptools.pypa.io/en/latest/userguide/quickstart.html <br />
+[3] Some GitHub repos you can refer to :  https://github.com/joreiff/rodeo, https://github.com/rxhernandez/ReLMM</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <!-- <p class="feed-subscribe">
+          <a href="http://localhost:4000/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p> -->
+        <div class="social-links"><ul class="social-media-list"><li>
+  <a rel="me" href="https://github.com/T-NIKHIL" target="_blank" title="github">
+    <svg class="svg-icon grey">
+      <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+    </svg>
+  </a>
+</li>
+<li>
+  <a rel="me" href="https://scholar.google.com/citations?user=2ewiheKHM4gC&hl=en" target="_blank" title="google_scholar">
+    <svg class="svg-icon grey">
+      <use xlink:href="/assets/minima-social-icons.svg#google_scholar"></use>
+    </svg>
+  </a>
+</li>
+<li>
+  <a rel="me" href="https://www.linkedin.com/in/nikhil-thota/" target="_blank" title="linkedin">
+    <svg class="svg-icon grey">
+      <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+    </svg>
+  </a>
+</li>
+<li>
+  <a rel="me" href="https://x.com/nik_thota" target="_blank" title="x">
+    <svg class="svg-icon grey">
+      <use xlink:href="/assets/minima-social-icons.svg#x"></use>
+    </svg>
+  </a>
+</li>
+</ul>
+</div>
+          <ul class="contact-list">
+            <p align="center">
+              Email : <a class="u-email" href="mailto:nthota2@jhu.edu">nthota2@jhu.edu</a>
+            </p>
+          </ul>
+          <p align="center"> Inspired from <a href="https://github.com/jekyll/minima">Jekyll Minima</a>.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
