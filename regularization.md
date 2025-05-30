@@ -231,8 +231,10 @@ $$
 
 <p align='justify'>
     Substituting p=1, we get the 1-norm also called $L^1$ norm or Manhattan norm.
-    Substituting p=2, we get the famous 2-norm also called $L^2$ norm or Euclidean norm. The $L^\infty$ norm or maximum norm is the limit of the $L^p$
-    norm as $p \to \infty$. The $L^\infty$ norm is interesting as only points at the corner of the square satisfy the constraint. The below plot shows the level sets of $L^1$, $L^2$, $L^3$ and $L^\infty$ norms in 2D.
+    Substituting p=2, we get the famous 2-norm also called $L^2$ norm or Euclidean norm. 
+    The $L^\infty$ norm or maximum norm is the limit of the $L^p$ norm as $p \to \infty$.
+    In 3D, the level sets of $L^\infty$ norm are a cube and in larger dimensions it forms
+    a hypercube. The below plot shows the level sets of $L^1$, $L^2$, $L^3$ and $L^\infty$ norms in 2D.
 </p>
 
 <p align="center">
