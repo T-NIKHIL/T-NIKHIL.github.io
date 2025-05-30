@@ -19,6 +19,8 @@ show_excerpts: true
     <img src="/assets/occams_razor.pdf" alt="Occam's Razor">
 </p>
 
+### Creating a toy dataset
+
 <p align='justify'>
     Lets start by building a toy dataset with 2 variables
     ($x_1$ and $x_2$) and a dependent variable $y$ that 
@@ -58,6 +60,8 @@ dataset = np.hstack((features, target))
 style="border:none; margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/linear_surface.html"
 height="380" width="740"></iframe>
 
+### Coding the model and loss function
+
 Our linear model is $\hat{y} = w_1x_1 + w_2x_2$. 
 Let's also define a loss function that will tell us how good our model
 parameters $w_1$ and $w_2$ are. For this we will use
@@ -86,6 +90,8 @@ The dotted black line shows where the global minima exists for this surface.
 
 <iframe id="igraph" scrolling="yes" 
 style="border:none; margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/loss_surface.html" height="380" width="740"></iframe>
+
+### Gradient Descent
 
 Now lets write a simple code to do gradient descent to update
 our model parameters.
@@ -127,6 +133,8 @@ margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/GD_path_n
     with the final model parameters. The algorithm is able to 
     find parameters close to the true parameters. 
 </p>
+
+### Increasing number of variables in the dataset
 
 <p align='justify'>
     Now consider the case where instead of just fitting 2 variables,
@@ -207,6 +215,8 @@ for epoch in range(num_epochs):
     this constraint ? This is exactly with parameter norm penalties do. 
 </p>
 
+### Vector Norms
+
 <p align='justify'>
     Wolfram Mathworld defines a norm as a quantity that in an abstract
     sense defines length, size or extent of an object. We can think of our
@@ -229,6 +239,8 @@ $$
     <img src="/assets/blogs/regularization/norms.pdf" alt="L1 to Linf norm">
 </p>
 
+### Modifying loss function to include parameter norm penalties
+
 <p align='justify'>
     Lets start by adding the $L^1$ norm constraint to our loss function and stick with the 2 parameter case so we can visualize
     the loss surface. The loss function we arrived at is the same loss
@@ -241,7 +253,9 @@ $$
 
 <p align='justify'>
     The $\lambda$ parameter controls the strength of the
-    $L^1$ norm penalty. For now lets fix the value to 0.5.
+    $L^1$ norm penalty. This is called as a hyperparameter
+    and requires manual tuning as we will see below.
+    For now lets fix the value to 0.5.
 </p>
 
 ```python
@@ -256,6 +270,8 @@ def dl_dw2(dataset, preds, w, lambda_reg):
     return np.mean(2*(dataset[:, -1].reshape(-1, 1) - preds.reshape(-1, 1))*(-dataset[:, 1].reshape(-1, 1))) + lambda_reg*np.sign(w[1, 0])
 ```
 
+### Gradient Descent with modified loss function
+
 <iframe id="igraph" scrolling="yes" 
 style="border:none; 
 margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/loss_surface_with_l1_reg.html" height="380" width="740"></iframe>
@@ -264,7 +280,8 @@ margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/loss_surf
     Where the MSE loss surface and $L^1$ norm constraint meet, defines the set of 
     solutions that satisfy the constraint. Now the optimizer must find where along
     this 1-D curve the loss is minimized. Sticking with the same num_epochs and 
-    learning rate as in the case without $L^1$ norm constraint lets run our gradient descent code and visualize the parameter 
+    learning rate as in the case without $L^1$ norm constraint lets run our gradient 
+    descent code and visualize the parameter 
     trajectory and final optimized model parameters.
 </p>
 
@@ -290,6 +307,8 @@ margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/GD_path_w
     Regression. Visualize how this loss surface looks like. Run gradient descent and see what model parameters you arrive at.
 </p>
 
+### Revisiting the 4 variable dataset
+
 <p align='justify'>
     Now that we have some intuition of what is happening, lets go 
     back to fitting the model to the 4D dataset. 
@@ -301,18 +320,30 @@ margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/GD_path_w
 
 <p align='justify'>
     We see that the loss curve plateaus very early
-    on with high regularization and the parameters
-    weighting the last 2 features are the smallest. $\lambda=0.1$ offers a good balance
+    on with high regularization. The parameters
+    weighting the last 2 features are the smallest
+    when $\lambda=1$ but are still not completely 'zeroed' out yet.
+    Large values of $\lambda$ also impact the parameters for feature 1 and 2,
+    increasing the bias in the model.
+    $\lambda=0.1$ offers a good balance
     between accuracy and minimizing influence
-    of features 3 and 4. $\lambda$ is called as
-    a hyperparameter as it is not a parameter of the model
-    but has an impact during the model training. The
-    sequentially thresholded least squares (STLSQ) algorithm
-    modifies the LASSO algorithm to suppress model parameters
-    below a set threshold. The parameter vector obtained at the
-    end of training is a sparse vector. This optimization
-    algorithm is used in sparse identification of nonlinear dynamics
-    (SINDy) [1].
+    of features 3 and 4. 
+</p>
+
+<p align='justify'>
+    A simple strategy to 'zero' out small parameters is thresholding.
+    We can define a threshold or range such that any parameter less
+    than the threshold or within the range will be set to 0. 
+    This is how the sequentially thresholded least squares (STLSQ) algorithm works.
+    The parameter vector obtained at the end of training is a sparse vector. 
+    This optimization algorithm is used in sparse identification of 
+    nonlinear dynamics (SINDy) [1].
+</p>
+
+### Vector norms with $0 \leq p < 1$
+
+<p align='justify'>
+    TODO
 </p>
 
 <p align='justify'>
