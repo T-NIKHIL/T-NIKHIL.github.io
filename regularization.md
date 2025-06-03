@@ -25,7 +25,7 @@ show_excerpts: true
     Lets start by building a toy dataset with 2 variables
     ($x_1$ and $x_2$) and a dependent variable $y$ that 
     linearly depends on the two independent variables 
-    as $y = 3x_1 + 2x_2 + N(0,0.5)$. Code to generate
+    as $y = 3x_1 + 2x_2 + N(0,1)$. Code to generate
     the dataset is shown below. 
 </p>
 
@@ -270,8 +270,8 @@ for epoch in range(num_epochs):
     After playing around for a while, you will realize that the model
     finds reasonable parameter values for the first two parameters but
     cannot completely "zero" out the last two parameters. Why does this
-    happen ? This is because the way the model has been coded, 
-    we require it to use all the available features and thus during the
+    happen ? This is because of the way the model has been coded 
+    we require the model to use all the available features and thus during the
     optimization process while the model tries to limit the influence of 
     spurious features, it cannot completely ignore them. This challenge
     is exactly what sparse regression methods try to solve.
