@@ -72,6 +72,8 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
     <img src="/assets/occams_razor.pdf" alt="Occam's Razor" />
 </p>
 
+<h3 id="creating-a-toy-dataset">Creating a toy dataset</h3>
+
 <p align="justify">
     Lets start by building a toy dataset with 2 variables
     ($x_1$ and $x_2$) and a dependent variable $y$ that 
@@ -82,20 +84,28 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">seed</span> <span class="o">=</span> <span class="mi">777</span>
 <span class="n">num_data</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">w_true</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-    <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">noise</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-    <span class="n">random</span><span class="p">.</span><span class="nf">noise</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">random</span><span class="p">.</span><span class="nf">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">gaussian_noise</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">x</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">gaussian_noise</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="n">gaussian_noise</span>
 
 <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 <span class="n">random</span><span class="p">.</span><span class="nf">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 <span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">round</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_data</span><span class="p">),</span> <span class="mi">1</span><span class="p">).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">x2</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">round</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_data</span><span class="p">),</span> <span class="mi">1</span><span class="p">).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-<span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">))</span>
+<span class="c1"># Standardize the features
+</span><span class="n">x1_mean</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">x1_std</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">std</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">x1_standardized</span> <span class="o">=</span> <span class="p">(</span><span class="n">x1</span><span class="o">-</span> <span class="n">x1_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">x1_std</span>
+<span class="n">x2_mean</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">x2_std</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">std</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">x2_standardized</span> <span class="o">=</span> <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x2_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">x2_std</span>
+
+<span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">x1_standardized</span><span class="p">,</span> <span class="n">x2_standardized</span><span class="p">))</span>
 <span class="n">target</span> <span class="o">=</span> <span class="nf">f</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span>
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">features</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
 </code></pre></div></div>
@@ -107,6 +117,8 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
 </p>
 
 <iframe id="igraph" scrolling="yes" style="border:none; margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/linear_surface.html" height="380" width="740"></iframe>
+
+<h3 id="coding-the-model-and-loss-function">Coding the model and loss function</h3>
 
 <p>Our linear model is $\hat{y} = w_1x_1 + w_2x_2$. 
 Let’s also define a loss function that will tell us how good our model
@@ -124,33 +136,45 @@ the mean squared error (MSE) loss function.</p>
             <span class="n">self</span><span class="p">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">w</span>
         <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">w</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">loss_fn</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">mse</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">((</span><span class="n">targets</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 </code></pre></div></div>
+<p align="justify">
+    Lets explore how this loss function looks like in 3D.
+</p>
 
-<p>Lets explore how this loss function looks like in 3D.
-The dotted black line shows where the global minima exists for this surface.</p>
+<iframe id="igraph" scrolling="yes" style="border:none; margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/mse_surface.html" height="380" width="740"></iframe>
 
-<iframe id="igraph" scrolling="yes" style="border:none; margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/loss_surface.html" height="380" width="740"></iframe>
+<p align="justify">
+    We can see that the mse loss surface is ellisoidal in shape. 
+    The dotted black line represents the minima of the loss surface.
+    The color of the surface represents the value of the MSE loss.
+</p>
+
+<h3 id="gradient-descent">Gradient Descent</h3>
 
 <p>Now lets write a simple code to do gradient descent to update
 our model parameters.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">dl_dw1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># This is the code to calculate gradient of the MSE function wrt w1
+</span><span class="k">def</span> <span class="nf">dl_dw1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="n">dataset</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
 
-<span class="k">def</span> <span class="nf">dl_dw2</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
+<span class="c1"># This is the code to calculate gradient of the MSE function wrt w2
+</span><span class="k">def</span> <span class="nf">dl_dw2</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="n">dataset</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
 
 <span class="c1"># Initial value to start optimization from
-</span><span class="n">w_init</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">40</span>
+</span><span class="n">w_init</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="c1"># Learning rate
 </span><span class="n">lr</span> <span class="o">=</span> <span class="mf">0.1</span>
 
 <span class="n">linear_model</span> <span class="o">=</span> <span class="nc">LinearModel</span><span class="p">()</span>
 <span class="n">preds</span> <span class="o">=</span> <span class="n">linear_model</span><span class="p">.</span><span class="nf">forward</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">w_init</span><span class="p">)</span>
 <span class="n">preds_hist</span> <span class="o">=</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">mse_loss</span> <span class="o">=</span> <span class="nf">mse</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">preds</span><span class="p">)</span>
+<span class="n">mse_loss_hist</span> <span class="o">=</span> <span class="n">mse_loss</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">w_hist</span> <span class="o">=</span> <span class="nf">deepcopy</span><span class="p">(</span><span class="n">w_init</span><span class="p">)</span>
 <span class="n">w_new</span> <span class="o">=</span> <span class="nf">deepcopy</span><span class="p">(</span><span class="n">w_init</span><span class="p">)</span>
 
@@ -158,8 +182,11 @@ our model parameters.</p>
     <span class="n">w_grads</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([</span><span class="nf">dl_dw1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">),</span> <span class="nf">dl_dw2</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">)]).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">w_new</span> <span class="o">-=</span> <span class="n">lr</span><span class="o">*</span><span class="n">w_grads</span>
     <span class="n">preds</span> <span class="o">=</span> <span class="n">linear_model</span><span class="p">.</span><span class="nf">forward</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">w_new</span><span class="p">)</span>
-    <span class="n">w_hist</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">w_hist</span><span class="p">,</span> <span class="n">w_new</span><span class="p">))</span>
     <span class="n">preds_hist</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">preds_hist</span><span class="p">,</span> <span class="n">preds</span><span class="p">.</span><span class="nf">rehape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="n">mse_loss</span> <span class="o">=</span> <span class="nf">mse</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">preds</span><span class="p">)</span>
+    <span class="n">mse_loss_hist</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">mse_loss_hist</span><span class="p">,</span> <span class="n">mse_loss</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="n">w_hist</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">w_hist</span><span class="p">,</span> <span class="n">w_new</span><span class="p">))</span>
+    
 </code></pre></div></div>
 
 <iframe id="igraph" scrolling="yes" style="border:none; 
@@ -169,13 +196,24 @@ margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/GD_path_n
     The left plot in the above figure traces out the parameter trajectory 
     in the parameter space and the right plot shows the fitting 
     with the final model parameters. The algorithm is able to 
-    find parameters close to the true parameters. 
+    find parameters close to the true parameters. Since we started
+    with good initial guesses we were able to converge fast to the
+    global minima. 
 </p>
 
 <p align="justify">
+    <b>Exercise 1</b> : Find the number of epochs it would take
+    to converge to the global minima starting from the adjacent 
+    corner of the loss surface.
+</p>
+
+<h3 id="increasing-number-of-variables-in-the-dataset">Increasing number of variables in the dataset</h3>
+
+<p align="justify">
     Now consider the case where instead of just fitting 2 variables,
-    we have to fit a linear model with many more variables than data
-    available to train the model. For this lets double the number of variables while still maintaining the number of datapoints.
+    we have to fit a linear model with many more variables but the
+    dataset does not sufficiently sample the observation space.
+    For this lets double the number of variables while still maintaining the number of datapoints. 
 </p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">num_data</span> <span class="o">=</span> <span class="mi">10</span>
@@ -188,67 +226,104 @@ margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/GD_path_n
 <span class="n">x3</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">round</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_data</span><span class="p">),</span> <span class="mi">1</span><span class="p">).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">x4</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">round</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_data</span><span class="p">),</span> <span class="mi">1</span><span class="p">).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-<span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">))</span>
+<span class="n">x1_mean</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">x2_mean</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">x3_mean</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">x3</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">x4_mean</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">x4</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">x1_std</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">std</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">x2_std</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">std</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">x3_std</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">std</span><span class="p">(</span><span class="n">x3</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">x4_std</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">std</span><span class="p">(</span><span class="n">x4</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">x1_standardized</span> <span class="o">=</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x1_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">x1_std</span>
+<span class="n">x2_standardized</span> <span class="o">=</span> <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x2_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">x2_std</span>
+<span class="n">x3_standardized</span> <span class="o">=</span> <span class="p">(</span><span class="n">x3</span> <span class="o">-</span> <span class="n">x3_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">x3_std</span>
+<span class="n">x4_standardized</span> <span class="o">=</span> <span class="p">(</span><span class="n">x4</span> <span class="o">-</span> <span class="n">x4_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">x4_std</span>
+
+<span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">x1_standardized</span><span class="p">,</span> <span class="n">x2_standardized</span><span class="p">,</span> <span class="n">x3_standardized</span><span class="p">,</span> <span class="n">x4_standardized</span><span class="p">))</span>
 <span class="n">target</span> <span class="o">=</span> <span class="nf">f</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span>
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">features</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
 
-<span class="n">w_init</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">600</span>
+<span class="k">def</span> <span class="nf">mse</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">((</span><span class="n">targets</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">dl_dw1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="n">dataset</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+
+<span class="k">def</span> <span class="nf">dl_dw2</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="n">dataset</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span> 
+
+<span class="k">def</span> <span class="nf">dl_dw3</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="n">dataset</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+
+<span class="k">def</span> <span class="nf">dl_dw4</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="n">dataset</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+
+<span class="k">class</span> <span class="nc">LinearModel</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">w</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">w</span><span class="p">)</span>
+
+<span class="n">w_init</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">200</span>
 <span class="n">lr</span> <span class="o">=</span> <span class="mf">0.1</span>
 
 <span class="n">linear_model</span> <span class="o">=</span> <span class="nc">LinearModel</span><span class="p">()</span>
 <span class="n">preds</span> <span class="o">=</span> <span class="n">linear_model</span><span class="p">.</span><span class="nf">forward</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">w_init</span><span class="p">)</span>
 <span class="n">preds_hist</span> <span class="o">=</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">loss</span> <span class="o">=</span> <span class="nf">loss_fn</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">preds</span><span class="p">)</span>
-<span class="n">loss_hist</span> <span class="o">=</span> <span class="n">loss</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">mse_loss</span> <span class="o">=</span> <span class="nf">loss_fn</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">preds</span><span class="p">)</span>
+<span class="n">mse_loss_hist</span> <span class="o">=</span> <span class="n">loss</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">w_hist</span> <span class="o">=</span> <span class="nf">deepcopy</span><span class="p">(</span><span class="n">w_init</span><span class="p">)</span>
 <span class="n">w_new</span> <span class="o">=</span> <span class="nf">deepcopy</span><span class="p">(</span><span class="n">w_init</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
-    <span class="n">w_grads</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([</span><span class="nf">dl_dw1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">w_new</span><span class="p">,</span> <span class="n">lambda_reg</span><span class="p">),</span> 
-                        <span class="nf">dl_dw2</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">w_new</span><span class="p">,</span> <span class="n">lambda_reg</span><span class="p">),</span>
-                        <span class="nf">dl_dw3</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">w_new</span><span class="p">,</span> <span class="n">lambda_reg</span><span class="p">),</span>
-                        <span class="nf">dl_dw4</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">w_new</span><span class="p">,</span> <span class="n">lambda_reg</span><span class="p">)]).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">w_grads</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([</span><span class="nf">dl_dw1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">),</span> <span class="nf">dl_dw2</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">),</span>
+                        <span class="nf">dl_dw3</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">),</span> <span class="nf">dl_dw4</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">)]).</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">w_new</span> <span class="o">-=</span> <span class="n">lr</span> <span class="o">*</span> <span class="n">w_grads</span>
     <span class="n">preds</span> <span class="o">=</span> <span class="n">linear_model</span><span class="p">.</span><span class="nf">forward</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">w_new</span><span class="p">)</span>
     <span class="n">preds_hist</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">preds_hist</span><span class="p">,</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="nf">loss_fn</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">preds</span><span class="p">)</span>
-    <span class="n">loss_hist</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">loss_hist</span><span class="p">,</span> <span class="n">loss</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="n">mse_loss</span> <span class="o">=</span> <span class="nf">mse</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">preds</span><span class="p">)</span>
+    <span class="n">mse_loss_hist</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">mse_loss_hist</span><span class="p">,</span> <span class="n">mse_loss</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
     <span class="n">w_hist</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">((</span><span class="n">w_hist</span><span class="p">,</span> <span class="n">w_new</span><span class="p">))</span>
 </code></pre></div></div>
 
 <p align="center">
-    <img src="/assets/blogs/regularization/loss_curve_for_4_feats.pdf" alt="Loss Curve for 4 features" />
+    <img src="/assets/blogs/regularization/loss_curve_with_4_feats_with_l1_0.pdf" alt="Loss Curve for 4 features" />
 </p>
 
 <p align="justify">
     One thing we immediately observe is that the number of epochs has
-    increased by almost 20x by just adding 2 more independent variables to
-    the dataset. In the loss plot we see a steep drop in the first 50 epochs and 
-    then a gradual decline over the next 300 epochs. We
-    see by 300 epochs, the model has found that the first 2 variables
-    are the major contributors to the target variable prediction. Over the 
-    next 300 epochs, the loss curve starts to plateau and the model
-    refines its parameter estimates.
+    increased by 20x by just adding 2 more independent variables to
+    the dataset. In the $log(MSE)$ plot above we can see that the loss
+    steeply drops in the first 20 epoch and then plateaus after 100 epochs.
 </p>
 
 <p align="justify">
-    <b>Exercise 1</b> : Tune the learning rate, number of epochs and
+    <b>Exercise 2</b> : Tune the learning rate, number of epochs and
     initial parameter guesses to see if you can bring the loss down
     further. Are you able to find better parameter estimates ?
 </p>
 
 <p align="justify">
     After playing around for a while, you will realize that the model
-    gets close to the true parameter set but never actually reaches it.
-    Why does this happen ? This is because the model we have is too complex
-    for the dataset we are trying to fit. The model tries to use all available 
-    variables given to it but doesn't realize that only the first 2 variables
-    are sufficient to explain the target variable. After thinking for a while
-    you might come up with a solution to add a constraint on the model
-    parameters to be as small as possible. How can we mathemetically formalize
-    this constraint ? This is exactly with parameter norm penalties do. 
+    finds reasonable parameter values for the first two parameters but
+    cannot completely "zero" out the last two parameters. Why does this
+    happen ? This is because the way the model has been coded, 
+    we require it to use all the available features and thus during the
+    optimization process while the model tries to limit the influence of 
+    spurious features, it cannot completely ignore them. This challenge
+    is exactly what sparse regression methods try to solve.
+    One solution to this problem is to add a constraint during the optimization
+    process that forces the model to learn parameters that are as small as possible. This is exactly with parameter norm penalties do. 
+    How can we mathemetically formalize this constraint ? 
 </p>
+
+<h3 id="vector-norms">Vector Norms</h3>
 
 <p align="justify">
     Wolfram Mathworld defines a norm as a quantity that in an abstract
@@ -262,16 +337,20 @@ margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/GD_path_n
 
 <p align="justify">
     Substituting p=1, we get the 1-norm also called $L^1$ norm or Manhattan norm.
-    Substituting p=2, we get the famous 2-norm also called $L^2$ norm or Euclidean norm. The $L^\infty$ norm or maximum norm is the limit of the $L^p$
-    norm as $p \to \infty$. The $L^\infty$ norm is interesting as only points at the corner of the square satisfy the constraint. The below plot shows the level sets of $L^1$, $L^2$, $L^3$ and $L^\infty$ norms in 2D.
+    Substituting p=2, we get the famous 2-norm also called $L^2$ norm or Euclidean norm. 
+    The $L^\infty$ norm or maximum norm is the limit of the $L^p$ norm as $p \to \infty$.
+    In 3D, the level sets of $L^\infty$ norm are a cube and in larger dimensions it forms
+    a hypercube. The below plot shows the level sets of $L^1$, $L^2$, $L^3$ and $L^\infty$ norms in 2D.
 </p>
 
 <p align="center">
-    <img src="/assets/blogs/regularization/norms.pdf" alt="L1 to Linf norm" />
+    <img src="/assets/blogs/regularization/level_sets_of_convex_norms.pdf" alt="L1 to Linf norm" />
 </p>
 
+<h3 id="modifying-loss-function-to-include-parameter-norm-penalties">Modifying loss function to include parameter norm penalties</h3>
+
 <p align="justify">
-    Lets start by adding the $L^1$ norm constraint to our loss function and stick with the 2 parameter case so we can visualize
+    Lets start by adding the $L^1$ norm parameter penalty to our loss function and stick with the 2 parameter case so we can visualize
     the loss surface. The loss function we arrived at is the same loss
     function used in least absolute shrinkage and selection operator (LASSO).
 </p>
@@ -280,38 +359,45 @@ margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/GD_path_n
 
 <p align="justify">
     The $\lambda$ parameter controls the strength of the
-    $L^1$ norm penalty. For now lets fix the value to 0.5.
+    $L^1$ norm parameter penalty. This is called as a hyperparameter
+    and requires manual tuning as we will see below.
+    For now lets fix the value to 1.0.
 </p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Updating loss and grad functions to include L1 norm penalty ...
-</span><span class="k">def</span> <span class="nf">loss_fn</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">lambda_reg</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">((</span><span class="n">targets</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">lambda_reg</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">mse</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">((</span><span class="n">targets</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">dl_dw1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">lambda_reg</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">l1_norm</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">lambda_reg</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">lambda_reg</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">dl_dw1</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">lambda_reg</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="n">dataset</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span> <span class="o">+</span> <span class="n">lambda_reg</span><span class="o">*</span><span class="n">np</span><span class="p">.</span><span class="nf">sign</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
-<span class="k">def</span> <span class="nf">dl_dw2</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">lambda_reg</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">dl_dw2</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">lambda_reg</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">preds</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="n">dataset</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">].</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span> <span class="o">+</span> <span class="n">lambda_reg</span><span class="o">*</span><span class="n">np</span><span class="p">.</span><span class="nf">sign</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 </code></pre></div></div>
 
+<h3 id="gradient-descent-on-mse-loss-surface-with-l1-norm-penalty">Gradient Descent on MSE loss surface with $L^1$ norm penalty</h3>
+
 <iframe id="igraph" scrolling="yes" style="border:none; 
-margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/loss_surface_with_l1_reg.html" height="380" width="740"></iframe>
+margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/mse_plus_l1_norm_surface.html" height="380" width="740"></iframe>
 
 <p align="justify">
     Where the MSE loss surface and $L^1$ norm constraint meet, defines the set of 
-    solutions that satisfy the constraint. Now the optimizer must find where along
-    this 1-D curve the loss is minimized. Sticking with the same num_epochs and 
-    learning rate as in the case without $L^1$ norm constraint lets run our gradient descent code and visualize the parameter 
-    trajectory and final optimized model parameters.
+    solutions that satisfy the constraint. Now the optimizer tries to find the minima
+    while balancing the constraint to have parameters as small as possible.
+    Sticking with the same num_epochs and learning rate as in the case without 
+    the $L^1$ norm constraint lets run our gradient descent code and 
+    visualize the parameter trajectory and final optimized model parameters.
 </p>
 
 <iframe id="igraph" scrolling="yes" style="border:none; 
 margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/GD_path_with_l1_reg.html" height="380" width="740"></iframe>
 
 <p align="justify">
-    Not suprisingly, the model performs even worse. The surface 
-    defined by the $L^1$ norm penalty actually pushes the model
-    parameters back and prevents it from reaching the global minimum.
+    Comparing to the case without the $L^1$ norm penalty we 
+    see that the parameter norm penalty works and the 
+    parameters have reduced slightly, thus increasing the MSE loss.
 </p>
 
 <p align="justify">
@@ -323,37 +409,131 @@ margin-bottom:0" seamless="seamless" src="/assets/blogs/regularization/GD_path_w
     <b>Exercise 4</b> : Instead of the $L^{1}$ norm parameter penalty, change
     the loss function and grad functions to include the $L^{2}$ norm
     penalty. The loss function you arrive at is the one used in Ridge
-    Regression. Visualize how this loss surface looks like. Run gradient descent and see what model parameters you arrive at.
+    Regression. Visualize how this loss surface looks like. 
+    Run gradient descent and see what model parameters you arrive at.
 </p>
+
+<h3 id="revisiting-the-4-variable-dataset">Revisiting the 4 variable dataset</h3>
 
 <p align="justify">
     Now that we have some intuition of what is happening, lets go 
-    back to fitting the model to the 4D dataset. 
+    back to fitting the model to the 4D dataset with the $L^1$ norm
+    parameter penalty. 
 </p>
 
 <p align="center">
-    <img src="/assets/blogs/regularization/loss_curve_for_4_feats_w_l1_reg.pdf" alt="loss curve with 4 feats" />
+    <img src="/assets/blogs/regularization/loss_curve_with_4_feats_with_l1_reg.pdf" alt="loss curve with 4 feats" />
 </p>
 
 <p align="justify">
-    We see that the loss curve plateaus very early
-    on with high regularization and the parameters
-    weighting the last 2 features are the smallest. $\lambda=0.1$ offers a good balance
-    between accuracy and minimizing influence
-    of features 3 and 4. $\lambda$ is called as
-    a hyperparameter as it is not a parameter of the model
-    but has an impact during the model training. The
-    sequentially thresholded least squares (STLSQ) algorithm
-    modifies the LASSO algorithm to suppress model parameters
-    below a set threshold. The parameter vector obtained at the
-    end of training is a sparse vector. This optimization
-    algorithm is used in sparse identification of nonlinear dynamics
-    (SINDy) [1].
+    We see that the loss curve plateaus rapidly in all the cases,
+    indicating that the model finds the global minima basin early on.
+    With high values of regularization, all the model parameters are
+    significantly constrained and we get a model with poor predictive power.With $\lambda=0.01$ we get a model that has parameters similar to the 
+    case without $L^1$ parameter penalty. $\lambda=1.0$ offers a good balance
+    of predictive accuracy while minimizing influence of features 3 and 4. 
+</p>
+
+<p align="justify">
+    A simple strategy to 'zero' out small parameters is thresholding.
+    We can define a threshold or range such that any parameter less
+    than the threshold or within a range will be set to 0. 
+    This is how the sequentially thresholded least squares (STLSQ) algorithm works.
+    The parameter vector obtained at the end of training is a sparse vector. 
+    This optimization algorithm is one of the optimization algorithms
+    used in sparse identification of nonlinear dynamics (SINDy) [1].
+</p>
+
+<h3 id="vector-norms-with-0-leq-p--1">Vector norms with $0 \leq p &lt; 1$</h3>
+
+<p align="justify">
+    <img src="/assets/blogs/regularization/level_sets_of_nonconvex_norms.pdf" alt="nonconvex norms" />
 </p>
 
 <p align="justify">
 [1] S.L. Brunton, J.L. Proctor, &amp; J.N. Kutz, Discovering governing equations from data by sparse identification of nonlinear dynamical systems, Proc. Natl. Acad. Sci. U.S.A. 113 (15) 3932-3937, https://doi.org/10.1073/pnas.1517384113 (2016).
 </p>
+
+<h3 id="appendix">Appendix</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Basic plotly code for visualization
+</span><span class="n">w1</span><span class="p">,</span> <span class="n">w2</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="n">lambda_reg</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="n">w1_grid</span><span class="p">,</span> <span class="n">w2_grid</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">meshgrid</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span> <span class="n">w2</span><span class="p">)</span>
+<span class="n">mse_surface</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">zeros_like</span><span class="p">(</span><span class="n">w1_grid</span><span class="p">)</span>
+<span class="n">l1_norm_surface</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">zeros_like</span><span class="p">(</span><span class="n">w1_grid</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">w1_grid</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">w1_grid</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">w1_grid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">dataset</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w2_grid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">dataset</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">mse_surface</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nf">mse</span><span class="p">(</span><span class="n">dataset</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">preds</span><span class="p">)</span>
+        <span class="n">w_arr</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([[</span><span class="n">w1_grid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]],</span> <span class="p">[</span><span class="n">w2_grid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]]])</span>
+        <span class="n">l1_norm_surface</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span>  <span class="nf">l1_norm</span><span class="p">(</span><span class="n">w_arr</span><span class="p">,</span> <span class="n">lambda_reg</span><span class="p">)</span>
+
+<span class="c1"># Create 3D scatter plot for loss surface
+</span><span class="n">loss_surface</span> <span class="o">=</span> <span class="n">go</span><span class="p">.</span><span class="nc">Figure</span><span class="p">()</span>
+
+<span class="c1"># Add pred loss surface
+</span><span class="n">loss_surface</span><span class="p">.</span><span class="nf">add_trace</span><span class="p">(</span><span class="n">go</span><span class="p">.</span><span class="nc">Surface</span><span class="p">(</span>
+    <span class="n">z</span><span class="o">=</span><span class="n">mse_surface</span><span class="p">,</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">w1_grid</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">w2_grid</span><span class="p">,</span>
+    <span class="n">colorscale</span><span class="o">=</span><span class="sh">'</span><span class="s">Viridis</span><span class="sh">'</span><span class="p">,</span>
+    <span class="n">opacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">showscale</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="sh">''</span>
+<span class="p">))</span>
+
+<span class="c1"># Add the L1 norm surface
+</span><span class="n">loss_surface</span><span class="p">.</span><span class="nf">add_trace</span><span class="p">(</span><span class="n">go</span><span class="p">.</span><span class="nc">Surface</span><span class="p">(</span>
+    <span class="n">z</span><span class="o">=</span><span class="n">l1_norm_surface</span><span class="p">,</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">w1_grid</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">w2_grid</span><span class="p">,</span>
+    <span class="n">colorscale</span><span class="o">=</span><span class="sh">'</span><span class="s">reds</span><span class="sh">'</span><span class="p">,</span>
+    <span class="n">opacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">showscale</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="sh">''</span>
+<span class="p">))</span>
+
+<span class="c1"># Add a line at the global minimum point
+</span><span class="n">z_min</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">nanmin</span><span class="p">(</span><span class="n">mse_surface</span><span class="p">)</span>
+<span class="n">z_max</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">nanmax</span><span class="p">(</span><span class="n">mse_surface</span><span class="p">)</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">linspace</span><span class="p">(</span><span class="n">z_min</span><span class="p">,</span> <span class="n">z_max</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">loss_surface</span><span class="p">.</span><span class="nf">add_trace</span><span class="p">(</span><span class="n">go</span><span class="p">.</span><span class="nc">Scatter3d</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="nf">len</span><span class="p">(</span><span class="n">z</span><span class="p">),</span>
+    <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="nf">len</span><span class="p">(</span><span class="n">z</span><span class="p">),</span>
+    <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="sh">'</span><span class="s">markers</span><span class="sh">'</span><span class="p">,</span>
+    <span class="n">marker</span><span class="o">=</span><span class="nf">dict</span><span class="p">(</span>
+        <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="sh">'</span><span class="s">black</span><span class="sh">'</span><span class="p">,</span>
+        <span class="n">opacity</span><span class="o">=</span><span class="mf">1.0</span>
+    <span class="p">),</span>
+    <span class="n">name</span><span class="o">=</span><span class="sh">''</span>
+<span class="p">))</span>
+
+<span class="n">loss_surface</span><span class="p">.</span><span class="nf">update_layout</span><span class="p">(</span>
+    <span class="n">scene</span><span class="o">=</span><span class="nf">dict</span><span class="p">(</span>
+        <span class="n">xaxis_title</span><span class="o">=</span><span class="sh">'</span><span class="s">w1</span><span class="sh">'</span><span class="p">,</span>
+        <span class="n">yaxis_title</span><span class="o">=</span><span class="sh">'</span><span class="s">w2</span><span class="sh">'</span><span class="p">,</span>
+        <span class="n">zaxis_title</span><span class="o">=</span><span class="sh">'</span><span class="s">MSE Loss</span><span class="sh">'</span>
+    <span class="p">),</span>
+    <span class="n">xaxis</span><span class="o">=</span><span class="nf">dict</span><span class="p">(</span>
+        <span class="n">tickvals</span> <span class="o">=</span> <span class="n">w1</span><span class="p">,</span>
+        <span class="n">ticktext</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="si">{</span><span class="n">w</span><span class="si">}</span><span class="sh">'</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">w1</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">yaxis</span><span class="o">=</span><span class="nf">dict</span><span class="p">(</span>
+        <span class="n">tickvals</span> <span class="o">=</span> <span class="n">w2</span><span class="p">,</span>
+        <span class="n">ticktext</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="si">{</span><span class="n">w</span><span class="si">}</span><span class="sh">'</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">w2</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">margin</span><span class="o">=</span><span class="nf">dict</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="n">width</span><span class="o">=</span><span class="mi">720</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">360</span>
+<span class="p">)</span>
+<span class="n">loss_surface</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+<span class="n">loss_surface</span><span class="p">.</span><span class="nf">write_html</span><span class="p">(</span><span class="sh">'</span><span class="s">loss_surface.html</span><span class="sh">'</span><span class="p">)</span>
+</code></pre></div></div>
 
   </div>
 
@@ -420,7 +600,36 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
   </a>
 </li>
 </ul>
-</div>
+
+<!-- <ul class="social-media-list"><li>
+    <a rel="me" href="" target="_blank" title="">
+      <span class="grey fa-brands fa- fa-lg"></span>
+    </a>
+  </li><li>
+    <a rel="me" href="" target="_blank" title="">
+      <span class="grey fa-brands fa- fa-lg"></span>
+    </a>
+  </li><li>
+    <a rel="me" href="" target="_blank" title="">
+      <span class="grey fa-brands fa- fa-lg"></span>
+    </a>
+  </li><li>
+    <a rel="me" href="" target="_blank" title="">
+      <span class="grey fa-brands fa- fa-lg"></span>
+    </a>
+  </li>
+  <li>
+    <a href="http://localhost:4000/feed.xml" target="_blank" title="Subscribe to syndication feed">
+      <svg class="svg-icon grey" viewbox="0 0 16 16">
+        <path d="M12.8 16C12.8 8.978 7.022 3.2 0 3.2V0c8.777 0 16 7.223 16 16h-3.2zM2.194
+          11.61c1.21 0 2.195.985 2.195 2.196 0 1.21-.99 2.194-2.2 2.194C.98 16 0 15.017 0
+          13.806c0-1.21.983-2.195 2.194-2.195zM10.606
+          16h-3.11c0-4.113-3.383-7.497-7.496-7.497v-3.11c5.818 0 10.606 4.79 10.606 10.607z"
+        />
+      </svg>
+    </a>
+  </li>
+</ul> --></div>
           <ul class="contact-list">
             <p align="center">
               Email : <a class="u-email" href="mailto:nthota2@jhu.edu">nthota2@jhu.edu</a>
