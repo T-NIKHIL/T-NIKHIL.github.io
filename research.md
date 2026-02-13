@@ -7,6 +7,40 @@ permalink: /research/
 <div style="display: flex; align-items: flex-start; margin-bottom: -30px; margin-top: -10px;">
   <div style="flex: 1;">
     <p><strong>
+      Nested Autoencoders and Nested Heteroencoders for Multi-scale Property Prediction of Perovskite Solar Cells and Photocatalysts
+    </strong></p>
+    <p align='justify'> 
+      This work is an extension of our previous work introducing
+      nested autoencoders (NestedAE). Here, we improve NestedAE's
+      ability to create informed latent spaces by training the
+      autoencoders using a modified objective function. 
+      A new model called nested heteroencoders (NestedHE)
+      is introduced that utilizes a decoder that maps to a restricted descriptor
+      space rather than the full input descriptor space.
+      We compare the performance of these models on a 
+      metal halide perovskite solvent binding energy dataset and
+      a photocatalyst dataset. 
+      The performance of Bayesian optimization using 
+      Gaussian processes trained on the NestedAE and
+      NestedHE latents is also tested.
+    </p>
+    <p> Authors: <a href="https://scholar.google.com/citations?user=2ewiheKHM4gC&hl=en" style="color: #0055ff">Nikhil Thota*</a>,
+                 <a href="https://scholar.google.com/citations?hl=en&user=dFKxViMAAAAJ" style="color: #0055ff">Rigoberto Hernandez</a>
+                 (* Equal Contribution)
+    </p>
+    <p>
+      <!-- <a href="">Paper</a> -->
+      <a href="https://github.com/rxhernandez/NestedAE">Github</a>
+    </p>
+  </div>
+  <div style="margin-left: 20px;">
+    <img src="/assets/NestedAE_v2_toc.pdf" alt="Article TOC" style="width: 250px; height: 125 px">
+  </div>
+</div>
+<hr style="border: 1px solid black;"/>
+<div style="display: flex; align-items: flex-start; margin-bottom: -30px; margin-top: -10px;">
+  <div style="flex: 1;">
+    <p><strong>
       ReLMM : Reinforcement Learning Optimizes Feature Selection in Material Models
     </strong></p>
     <p align='justify'> In this work we have developed a data driven model 
@@ -23,7 +57,7 @@ permalink: /research/
                  (* Equal Contribution)
     </p>
     <p>
-      <a href="https://doi.org/10.1016/j.bpj.2022.11.2941" >Paper</a>
+      <a href="https://doi.org/10.1021/acs.jcim.4c01934" >Paper</a>
       <a href="https://github.com/rxhernandez/ReLMM">Github</a>
     </p>
   </div>
