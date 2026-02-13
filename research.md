@@ -24,9 +24,8 @@ permalink: /research/
       Gaussian processes trained on the NestedAE and
       NestedHE latents is also tested.
     </p>
-    <p> Authors: <a href="https://scholar.google.com/citations?user=2ewiheKHM4gC&hl=en" style="color: #0055ff">Nikhil Thota*</a>,
+    <p> Authors: <a href="https://scholar.google.com/citations?user=2ewiheKHM4gC&hl=en" style="color: #0055ff">Nikhil Thota</a>,
                  <a href="https://scholar.google.com/citations?hl=en&user=dFKxViMAAAAJ" style="color: #0055ff">Rigoberto Hernandez</a>
-                 (* Equal Contribution)
     </p>
     <p>
       <!-- <a href="">Paper</a> -->
