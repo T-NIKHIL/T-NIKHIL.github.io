@@ -32,7 +32,7 @@ layout: home
         <a href="https://doi.org/10.1039/D3MH01484C" style="color: #0055ff"> 
         constructing material embeddings using Nested Autoencoders </a> and
         <a href="https://doi.org/10.1021/acs.jcim.4c01934" style="color: #0055ff">
-        sparse feature selection using multi-agent reinforcement learning </a> 
+        sparse feature selection using multi-agent reinforcement learning </a>.
         I completed my Master's thesis work in the same lab,
         where I developed an algorithm for efficient 
         simulations of protein unfolding and computation of the
@@ -54,7 +54,7 @@ layout: home
     <p>
         I am currently seeking postdoctoral opportunities in AI + Biophysics. 
         I am a firm believer that the best insights come from unexpected conversations. 
-        Whether you are in academia, tech, want to nerd out by AI or just say Hi! - let's connect !
+        Whether you are in academia, tech, want to nerd out about AI or just say Hi! - let's connect !
     </p>
   </div>
   <div style="margin-left: 20px; margin-top: 5px">
