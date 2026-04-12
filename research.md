@@ -74,7 +74,7 @@ permalink: /research/
       neural network architecture for multi-scale materials
       modelling called NestedAE. We compared the performance 
       of this architecture versus other state of the art 
-      machine learning models using a
+      machine learning models using a 
       synthetic and metal halide perovskite dataset with 
       bandgap and device efficiency properties.</p>
     <p> Authors : Nikhil Thota*, Maitreyee Sharma Priyadarshini*, Rigoberto Hernandez </p>

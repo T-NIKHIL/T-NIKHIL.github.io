@@ -11,32 +11,50 @@ layout: home
 <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
   <div style="flex: 1;">
     <p align='justify'> 
-        Welcome! I am currently a 3rd year Ph.D. student in the 
-        <a href="https://engineering.jhu.edu/chembe/" style="color: #0055ff">Department of Chemical and Biomolecular Engineering</a>
-        at the Johns Hopkins University. I work with 
-        <a href="https://chemistry.jhu.edu/directory/rigoberto-hernandez/" style="color: #0055ff">Dr. Rigoberto Hernandez</a>
-        to build data-driven models for material 
-        property prediction across multiple length scales.
-        These models are used in conjunction with 
-        black box optimization algorithms to design 
-        materials with bespoke properties.
-        We are currently interested in building
-        these models for Metal Halide Perovskite Solar Cells.
-        Learn about this work 
-        <a href="https://doi.org/10.1039/D3MH01484C" style="color : #0055ff">here</a>.
+        Welcome ! I am currently doing research in the intersection of machine 
+        learning, bayesian optimization and molecular modelling.
+        I am broadly motivated by the question : 
+        <b> How can we improve the accuracy and decrease the
+        cost of running atomistic bio-molecular simulations, in a way that is
+        theoretically principled and practically impactful. </b>
     </p>
-    <p align="justify">
-        I completed my Masters degree in the same lab where I worked on developing 
-        simulation tools to study the dynamics of unfolding
-        of large proteins. My interest in studying biomolecules
-        grew from my undergraduate research where I worked on 
-        building pseudo-kinetic models for Loop-Mediated
-        Isothermal Amplication of DNA. 
+
+    <p align='justify'> 
+        My doctoral research in 
+        <a href="https://chemistry.jhu.edu/directory/rigoberto-hernandez/" style="color: #0055ff"> 
+        Dr. Rigoberto Hernandez's lab </a> 
+        focused on developing models and algorithms that construct interpretable and
+        sparse embeddings for optimization of 
+        <a href="https://en.wikipedia.org/wiki/Perovskite" style="color: #0055ff"> 
+        metal halide perovskite (MHP) </a> 
+        properties in large-dimensional and low-data settings. 
+        Some of my notable research publications in this area are 
+        <a href="https://doi.org/10.1039/D3MH01484C" style="color: #0055ff"> 
+        constructing material embeddings using Nested Autoencoders </a> and
+        <a href="https://doi.org/10.1021/acs.jcim.4c01934" style="color: #0055ff">
+        sparse feature selection using multi-agent reinforcement learning </a> 
+        I completed my Master's thesis work in the same lab,
+        where I developed an algorithm for efficient 
+        simulations of protein unfolding and computation of the
+        <a href="https://en.wikipedia.org/wiki/Potential_of_mean_force" style="color: #0055ff"> 
+        potential of mean force </a>,
+        <a href="https://doi.org/10.1021/acs.jctc.2c00498" style="color: #0055ff">
+        using telescoping water boxes </a>.
     </p>
+
     <p align="justify">
-        My goal is to develop tools to aid scientists 
-        in extracting insights from their data and 
-        accelerate the discovery of new materials.
+        After 4 years of doing research in material informatics, 
+        I now find myself fascinated to investigate bio-molecular mechanisms
+        facilitating cellular processes, with specific interest in ion-mediated 
+        processes. This has motivated me to revisit algorithmic development in 
+        force field design and enhanced sampling for atomistic 
+        bio-molecular simulations.
+    </p>
+
+    <p>
+        I am currently seeking postdoctoral opportunities in AI + Biophysics. 
+        I am a firm believer that the best insights come from unexpected conversations. 
+        Whether you are in academia, tech, want to nerd out by AI or just say Hi! - let's connect !
     </p>
   </div>
   <div style="margin-left: 20px; margin-top: 5px">
