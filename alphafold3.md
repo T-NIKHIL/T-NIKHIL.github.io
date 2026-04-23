@@ -248,7 +248,7 @@ show_excerpts: true
         data-repo-id="R_kgDOMMGitw"
         data-category="Q&A"
         data-category-id="DIC_kwDOMMGit84C7ixN"
-        data-mapping="pathname"
+        data-mapping="title"
         data-strict="1"
         data-reactions-enabled="1"
         data-emit-metadata="0"
