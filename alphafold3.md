@@ -243,7 +243,21 @@ show_excerpts: true
     representations.
 </p>
 
-
+<script src="https://giscus.app/client.js"
+        data-repo="T-NIKHIL/T-NIKHIL.github.io"
+        data-repo-id="R_kgDOMMGitw"
+        data-category="Q&A"
+        data-category-id="DIC_kwDOMMGit84C7ixN"
+        data-mapping="pathname"
+        data-strict="1"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="light_high_contrast"
+        data-lang="en"
+        crossorigin="anonymous"
+        async>
+</script>
 
 <h4><b> References </b></h4>
 
