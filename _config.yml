@@ -62,3 +62,6 @@ minima:
   #  - { platform: twitter,        user_url: "https://x.com/nik_thota" }
    - { platform: x,              user_url: "https://x.com/nik_thota" }
 
+
+google_analytics:
+  id: "G-LLV3TYFWDF"
