@@ -4,9 +4,11 @@ permalink: /alphafold3/
 show_excerpts: true
 ---
 
-<p align='justify'>
-    <b><span style="color:red">DISCLAIMER</span> : BELOW CONTENT IS NOT AI GENERATED AND REPRESENTS THE AUTHORS VIEWS AND INTERPRETATIONS. FOR QUERIES USE THE COMMENT BOX BELOW.</b>
-</p> 
+<!-- <p align='justify'>
+    <b><span style="color:red">DISCLAIMER</span> : BELOW CONTENT 
+    REPRESENTS AUTHORS VIEWS AND INTERPRETATIONS. 
+    FOR QUERIES USE THE COMMENT BOX BELOW.</b>
+</p>  -->
 
 <p align='justify'>
     The <a href="https://en.wikipedia.org/wiki/Protein_folding">protein folding</a> 
@@ -225,23 +227,384 @@ show_excerpts: true
     Okay so far we have collected the data and
     featurized it. Now we are ready to pass this data
     through the AF3 model and predict 3D structures and
-    confidence metrics. AF3 primarily operates on two
-    internal representations called the pair <em>p</em> and single
-    representations.
-    These representations operate on a fine-grained and
-    coarse-grained scale. 
-    On the fine-grained scale they encode relationships
-    between 
+    confidence metrics. The below model diagram shows
+    the flow of information between the different AF3 
+    model components. In the following sections I will 
+    give a high level overview about the functions
+    of the Pairformer and Diffusion module. 
+    These modules refine two intermediate
+    representations called the <b> pair and single representations </b>
+    which are constructed by the Input Embedder module.
+</p>
     
-     atomic level
-     These are continuously updated as 
+<figure align="center">
+    <img src="/assets/blogs/alphafold3/AF3_inference_arch.jpg" alt="AF3_arch">
+    <figcaption>Figure 9. High level model architecture</figcaption>
+</figure>
+    
+<h5 id="Sec2.1"><b> 2.1. The Pair and Single Representations</b></h5>
+
+<p align='justify'>
+    The pair and single representations
+    operate on a fine-grained and
+    coarse-grained scale.
+    <b>On the fine-grained scale</b> the 
+    single representation <em>q<sub><em>l</em></sub></em>
+    is initialized by encoding the atomic positions and properties for each atom
+    through a linear transformation into a 2D embedding.
+    The number of channels controls the amount of information
+    that can be stored in each atom's embedding as shown in 
+    Figure 10.
+    The fine-grained pair representation <em>p<sub><em>lm</em></sub></em>
+    is initialized by first encoding the inverse squared 
+    distances between atoms <em>l</em> and <em>m</em>,
+    then the atom <em>l</em> and atom <em>m</em> features, and 
+    finally refined by passing through a Multi Layer Perceptron (MLP).
+    Pair wise atom relationships are encoded within the 16 channels 
+    of <em>p<sub><em>lm</em></sub></em> as shown in Figure 10.
+    Pair wise atom information is also added to
+    <em>q<sub><em>l</em></sub></em> by passing through 
+    <b>Masked Attention</b> and <b>Conditioned Transition</b> blocks 3 times.
+</p>
+
+<figure align="center">
+    <img src="/assets/blogs/alphafold3/fine_grained_single_and_pair.png" alt="FG_single_and_pair">
+    <figcaption>Figure 10. Fine grained single <em>q<sub><em>l</em></sub></em> and
+    pair <em>p<sub><em>lm</em></sub></em> representations </figcaption>
+</figure>
+
+>
+**Masked Attention** is performed by representing the whole
+structure as a flat list of atoms then **for each subset of
+32 atoms in the structure, the model focuses on the nearby 128 atoms**.
+This restriction, while sub-optimal, was done to ensure that
+the memory and compute costs are kept within practical limits.
+The masked attention operation is performed by first computing
+the full affinity matrix $q_i^Tk_j$ and then adding the neighborhood mask $\beta_{ij}$
+to realize the attentions only in yellow rectangular boxes
+as shown in Figure 11. 
+>
+
+<figure align="center">
+    <div style="text-align: center;">
+        <img src="/assets/blogs/alphafold3/masked_attention.png" alt="masked_attention"
+        width="200" height="200">
+    </div>
+    <figcaption>Figure 11. Sequence local atom attention. Each subset of atoms (rows) attends to a larger subset of atoms (columns). The blue area depicts the theoretical full Natoms × Natoms attention matrix. The yellow rectangles
+    represent the attentions that are realized. </figcaption>
+</figure>
+
+>
+Attention $A_{ij}^h$ between atom $i$ and atom $j$, in attention head $h$, using 
+neighborhood mask $\beta_{ij}$ is computed as
+>
+$$
+    A_{ij}^h = \textrm{softmax} ( \frac{1}{\sqrt{c}} q_{i}^{h^T} k_{j}^h + \textrm{LinearNoBias}(z_{ij}) + \beta_{ij} ) v_{j}^h
+$$
+>
+The query $q$, key $k$ and value $v$ arrays are computed from 
+atom-level single representations $q_{i}$ and $q_{j}$, respectively.
+$c$ is computed as the dimensionality/number of channels in $q_{i}$ (i.e 128)
+divided by the number of attention heads (4).
+The attention is then gated and then linearly projected into the
+appropriate dimensionality and then passed onto the 
+**Conditioned Transition** block.
+>
+
+<p align='justify'>
+    <b>On the coarse grained scale</b> the single $s_i$ and
+    pair $z_{ij}$ representations encode residue level
+    and inter-residue relationships, respectively.
+    This enables the model to reason
+    on a global/structural level.
+    $s_i$ is initialized by averaging
+    over all atom-level representations $q_l$ in the residue
+    and then concatenated with
+    the residue_type, profile and deletion_mean features. 
+    This creates the intermediate $s_{i}^{\rm{inputs}}$ representation which
+    is then subsequently linearly projected into 384 channels 
+    to create $s_{i}$ as shown in Figure 12. 
+    $z_{ij}$ is initialized from the
+    single representations $s_{i}$ and $s_{j}$ by linearly projecting
+    into 128 channels,
+    followed by refinement through the **Relative Positional Encoding** block,
+    which helps differentiate between residues belonging to different chains.
+    Finally, chemically connectivity information between tokens is added.
+</p>
+
+<figure align="center">
+    <img src="/assets/blogs/alphafold3/coarse_grained_single_and_pair.png" alt="CG_single_and_pair">
+    <figcaption>Figure 12. Coarse grained single <em>s<sub><em>i</em></sub></em> and
+    pair <em>z<sub><em>ij</em></sub></em> representations </figcaption>
+</figure>
+
+<p align='justify'>
+    $s_i$ and $z_{ij}$ are continuously updated as 
     they are passed through multiple module layers until
     they reach the Diffusion Module where starting from
     gaussian distributed 3D atomic coordinates, 
-    the module iteratively denoises the coordinates
-    conditioned based on the refined single and pair
-    representations.
+    the module iteratively denoises to predict atomic coordinates
+    conditioned based on the refined $s_i$ and $z_{ij}$.
 </p>
+
+<h5 id="Sec2.2"><b> 2.2. The Pairformer module</b></h5>
+
+<p align='justify'>
+    The Pairformer module is the second last module
+    in the AF3 model architecture which is responsible
+    for constraining the values of the pair embeddings 
+    based on directional geometric reasoning.
+    The triangle multiplicative and self attention updates are based on the
+    triangle inequality. The transition block
+    linearly transforms the output from the triangular update
+    blocks into 4x larger dimensional space, 
+    applies a non-linear transformation through the swish activation function and
+    then performs a linear dimensionality reduction back to 128 channels.
+</p>
+
+<figure align="center">
+    <img src="/assets/blogs/alphafold3/pairformer.jpg" alt="Pairformer">
+    <figcaption>Figure 13. Pairformer Module Architecture </figcaption>
+</figure>
+
+<p align='justify'>
+    To understand how the triangle updates work its best to view
+    the matrix representation as a directed graph.
+    Directed edges are required since the pair representations
+    $z_{ij}$ and $z_{ji}$ are not commutative.
+    Figure 14 shows an example
+    of how to construct the directed graph using tokens $i$, $j$ and $k$
+    as the graph nodes.
+    The pair representation $z_{ij}$ is represented as a
+    directed edge drawn from node $i$ to node $j$.
+    To form the triangle, directed edges can
+    be drawn starting from nodes $i$ and $j$ and
+    ending at node $k$. These are called as <b>outgoing edges</b>.
+    Node $k$ is varied according to the tokens
+    in the input sequence. In the pair representation,
+    this can be understood as varying $k$ while keeping the 
+    row indices $i$ and $j$ fixed.
+    The other way to draw the directed graph
+    is to start from node $k$ and
+    draw directed edges towards node $i$ and node $j$, 
+    as depicted in bottom of Figure 14. 
+    These are called as <b>incoming edges</b>.
+    Again while fixing node $i$ and node $j$,
+    we can vary node $k$. 
+    In the pair representation,
+    this can be understood as varying $k$ while keeping the 
+    column indices $i$ and $j$ fixed.
+</p>
+
+<figure align="center">
+    <img src="/assets/blogs/alphafold3/triangular_multiplicative_updates.pdf" alt="Triangle Multiplicative Updates">
+    <figcaption>Figure 14. Triangular Multiplicative Updates</figcaption>
+</figure>
+
+<p align='justify'>
+    For each of the triangles formed with the directed edges
+    we can apply the triangle inequality. 
+    For example for node $k_{1}$,
+    the triangle inequality is $d_{ij} < d_{ik_1} + d_{jk_1}$.
+    We can sum individual triangle updates which gives
+    the final equation shown to the left in Figure 14.
+    However, the actual implementation details are difficult to understand
+    and not properly documented.
+    I believe to improve the speed of triangular updates,
+    AF3 uses Hadamard products instead of computing sums.
+    AF3 also uses sigmoid gates to control the flow of information
+    and lets the model identify which updates are more important.
+    However, details such as why the use of two vectors $a$ and $b$
+    is not clear.
+    The complete algorithm for computing triangular multiplicative updates
+    for the <b>outgoing</b> edges is as follows : 
+</p>
+
+```python
+def TriangleMultiplicationOutgoing({zij}, c=128):
+    # This operation outputs two new vectors aik and bik 
+    # to use in the Hadamard product using 2 linear NNs.
+    # aik, bik ∈ ℝ^128
+    aik, bik = sigmoid(LinearNoBias(zik)) ⨀ LinearNoBias(zik)
+    # Compute ajk and bjk (ajk, bjk ∈ ℝ^128)
+    ajk, bjk = sigmoid(LinearNoBias(zjk)) ⨀ LinearNoBias(zjk)
+
+    # Sigmoid gating of the output from the Hadamard Product.
+    gij = sigmoid(LinearNoBias(LayerNorm(zij)))
+
+    # Compute update
+    𝑧ij_update = gij ⨀ LinearNoBias(LayerNorm(sum_k(aik ⨀ bjk)))
+```
+<p align='justify'>
+    The triangular multiplicative updates using
+    the incoming edges follows a similar algorithm
+    with the computation of $a_{ik}$ and $b_{jk}$
+    replaced with computation of $a_{ki}$ and $b_{kj}$.
+</p>
+
+<p align='justify'>
+    In the triangle self attention block AF3 
+    first computes attention between each
+    $z_{ij}$ and $z_{ik}$ pair representation.
+    To complete the triangle, 
+    AF3 computes an attention bias $b_{jk}$ using $z_{jk}$.
+    These operations are called 
+    <b>triangle self attention around the "starting node"</b>
+    since graphically it can be visualized as 
+    drawing directed edges starting from node $i$
+    to every other other token in the sequence (i.e node $k$)
+    as depicted in Figure 15 (left).
+    $z_{ij}$ is used to compute the query array $q_{ij}$
+    while $z_{ik}$ is used to compute the key $k_{ik}$ and value $v_{ik}$ arrays
+    which together with the bias term $b_{jk}$
+    is used to compute self attention
+    $$
+        a_{ijk}^h = \textrm{softmax}_{k} ( \frac{1}{\sqrt{c}} q_{ij}^{h^T} k_{ik}^h + b_{jk}^{h} ) v_{ik}^h .
+    $$
+    AF3 uses multi-headed attention and the superscript $h$ 
+    is used to index the attention head. 
+    In multi-headed attention, each attention head is allowed
+    to specialize attention on different components of the input 
+    sequence, in this case focus on different aspects of the
+    information stored in the channels of the pair representations.
+    The dot product between $q_{ij}^{h}$ and
+    $k_{ik}^h$ is scaled down by the dimensionality $c$ 
+    of the query, key and value arrays which is set to 32.
+    In the second self attention block, 
+    AF3 computes attention between the $z_{ij}$ and $z_{kj}$
+    pair representations. 
+    To complete the triangle, 
+    AF3 computes an attention bias $b_{ki}$ using $z_{ki}$.
+    These operations are called 
+    <b>triangle self attention around the "ending node"</b> since
+    graphically it can be visualized as drawing directed edges
+    starting from different $k$ nodes and ending at the node $j$
+    as depicted in Figure 15 (right).
+</p>
+
+<figure align="center">
+    <img src="/assets/blogs/alphafold3/triangle_self_attention.pdf" alt="Triangle Self Attention">
+    <figcaption>Figure 15. Triangle Self Attention around starting node (left) and ending node (right)</figcaption>
+</figure>
+
+<p align='justify'>
+    The pesudocodes for triangle self attention about
+    the "starting" and "ending" nodes are similar so
+    I only present one of them.
+    The only difference is that the
+    computation of $k_{ik}$, $v_{ik}$ and $b_{jk}$  
+    in TriangleAttentionStartingNode is replaced
+    with computation of $k_{ki}$, $v_{ki}$ and $b_{kj}$
+    in TriangleAttentionEndingNode.
+</p>
+
+```python
+def TriangleAttentionStartingNode({zij}, c=32, Nhead=4):
+    # Normalize the inputs
+    zij ← LayerNorm(zij)
+    zik ← LayerNorm(zik)
+    zjk ← LayerNorm(zjk)
+    # Projecting zij into the query, key and value space using 3 linear NN.
+    # qij_h, kij_h, vij_h ∈ ℝ^32 and h ∈ {1 ... Nhead}
+    qij_h, kij_h, vij_h = LinearNoBias(zij)
+    # Projecting zij into the query, key and value space using 3 linear NN.
+    qik_h, kik_h, vik_h = LinearNoBias(zik)
+    # Computing the attention bias bjk (bjk_h ∈ ℝ^32)
+    bjk_h = LinearNoBias(zjk)
+    # Sigmoid gating information flow (gij_h ∈ ℝ^32)
+    gij_h = sigmoid(LinearNoBias(zij))
+
+    # Computing attention for each k token (aijk_h ∈ ℝ^32)
+    # matmul(transpose(qij_h), kik_h) creates a 32 x 32 attention matrix
+    aijk_h = softmax_k(1/sqrt(c) * matmul(transpose(qij_h), kik_h) + bjk_h)
+    # Multiply with gate
+    oij_h = gij_h ⨀ sum_k(matmul(vik_h, aijk_h))
+
+    # Concatenate the outputs from each head and then project back to ℝ^128
+    zij_update = LinearNoBias(concat(oij_h))
+```
+
+<h5 id="Sec2.3"><b> 2.3. The Diffusion module</b></h5>
+
+<p align='justify'>
+    In AF2 the structure module used invariant point attention algorithm.
+    This is replaced with a standard 
+    non-equivariant point-cloud diffusion model in AF3.
+    During training, 48 diffusion modules are trained in parallel.
+    This is efficient since training the diffusion module is much cheaper
+    than training the trunk of AF3.
+    The forward noise process is simulated by randomly rotating and
+    translating the 48 ground truth structures and adding independent gaussian
+    noise sampled from 
+    $$ 
+        \hat t \sim \sigma_{\rm{data}}*\exp(-1.2 + 1.5*N(0, 1)) 
+    $$
+    The reverse denoising process is a one step denoising process
+    where the module's goal is to predict the noise added to the input.
+    Denoising at low noise puts emphasis on getting the
+    local stereochemistry correct while denoising at high noise
+    puts more emphasis on getting the global structure correct.
+    Thus without any torsion-based parametrizations and 
+    stereochemical losses, just by varying the noise levels,
+    AF3 is able to learn these concepts internally.
+    During training, a short/mini rollout is performed where
+    the module's predictions are fed back as input to predict 
+    a new set of denoised atomic coordinates as depicted in Figure 16.
+    In AF3 this is done for 20 steps while during inference 
+    a longer rollout is performed using 200 steps
+    with noise sampled from
+    $$
+        \hat t \sim \sigma_{\rm{data}}*(s_{\rm{max}}^{\frac{1}{p}} + t*(s_{\rm{min}}^{\frac{1}{p}} - s_{\rm{max}}^{\frac{1}{p}}))^{p}.
+    $$
+    $\sigma_{\rm{data}}$ in both the training noise and
+    inference noise schedule is set to 16, $p$ is set to 7,
+    $s_{\rm{max}}$ and $s_{\rm{min}}$ are set to 160 and $4.10^{-4}$
+    respectively. $t$ is step size starting from 0 with increments of 1/200.
+</p>
+
+<figure align="center">
+    <img src="/assets/blogs/alphafold3/diffusion_module_inference.pdf" alt="Diffusion Module Inference">
+    <figcaption>Figure 16. Diffusion Module during inference.</figcaption>
+</figure>
+
+<p align='justify'>
+    As mentioned above, AF3 uses a noise schedule
+    during inference but also applies a conditional noise $\gamma$
+    to improve sample diversity as shown in Figure 16. 
+    $\gamma$ is applied based on a threshold, i.e, 
+    if the noise from the schedule $c_{\tau}$
+    at any give time $\tau$ is greater than $\gamma_{\rm{min}}$
+    then $\gamma$ is set to 0.8 else it is set to 0.
+    The final noise added to the randomly
+    rotated and translated protein is 
+    $$
+        \hat t = c_{\tau - 1}(\gamma + 1) 
+    $$
+    $$
+        \overrightarrow \xi_{l} = \lambda \sqrt{\hat t^2 - c_{\tau - 1}^2} . N(\overrightarrow 0, I_{3})
+    $$
+    $$
+        \overrightarrow x_l^{\rm{noisy}} = \overrightarrow x_l + \overrightarrow \xi_{l}
+    $$
+</p>
+
+<b>What does the Diffusion Module predict ?</b>
+
+<p align='justify'>
+    Diffusion Module predicts the noise added to the 
+    image. 
+</p>
+
+<b>How does the Diffusion Module work ?</b>
+
+<figure align="center">
+    <img src="/assets/blogs/alphafold3/diffusion_module_arch.pdf" alt="Diffusion Module Architecture">
+    <figcaption>Figure 17. Internal working of the Diffusion Module in AF3.</figcaption>
+</figure>
+
+<h5 id="Sec3"><b> 3. Training Losses </b></h5>
+
+<h5 id="Sec4"><b> 4. Benchmarks </b></h5>
 
 <script src="https://giscus.app/client.js"
         data-repo="T-NIKHIL/T-NIKHIL.github.io"

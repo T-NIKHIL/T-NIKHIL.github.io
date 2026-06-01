@@ -16,6 +16,35 @@ Please reach out via email !
   <li>
     <span class="post-meta">{{ '2026-04-22' | date: date_format }}</span>
     <h3>
+      <a class="post-link" href="/normalizing_flows/index.html" style="color: #0055ff">
+        Normalizing Flows
+      </a>
+    </h3>
+    <p align='justify'>
+      (Under construction)
+    </p>
+  </li>
+
+<ul class="post-list">
+{%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+  <li>
+    <span class="post-meta">{{ '2026-04-22' | date: date_format }}</span>
+    <h3>
+      <a class="post-link" href="/denoising_diffusion_probabilistic_models/index.html" style="color: #0055ff">
+        Denoising Diffusion Probabilistic Models
+      </a>
+    </h3>
+    <p align='justify'>
+      In this blogpost I dive into a popular class of generative models called 
+      denoising diffusion probabilistic models. (Under construction)
+    </p>
+  </li>
+
+<ul class="post-list">
+{%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+  <li>
+    <span class="post-meta">{{ '2026-04-22' | date: date_format }}</span>
+    <h3>
       <a class="post-link" href="/msa/index.html" style="color: #0055ff">
         Searching for evolutionarily conserved sequences using 
         Multiple Sequence Alignment (MSA)
