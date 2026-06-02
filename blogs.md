@@ -25,6 +25,8 @@ Please reach out via email !
     </p>
   </li>
 
+<hr style="border: 1px solid black;"/>
+
 <ul class="post-list">
 {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
   <li>
@@ -38,7 +40,9 @@ Please reach out via email !
       In this blogpost I dive into a popular class of generative models called 
       denoising diffusion probabilistic models. (Under construction)
     </p>
-  </li>
+</li>
+
+<hr style="border: 1px solid black;"/>
 
 <ul class="post-list">
 {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
@@ -56,6 +60,8 @@ Please reach out via email !
       implement MSA in practice.
     </p>
   </li>
+
+<hr style="border: 1px solid black;"/>
 
 <ul class="post-list">
 {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
@@ -75,6 +81,8 @@ Please reach out via email !
     </p>
   </li>
 
+<hr style="border: 1px solid black;"/>
+
 <ul class="post-list">
 {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
   <li>
@@ -91,6 +99,8 @@ Please reach out via email !
     </p>
   </li>
 
+<hr style="border: 1px solid black;"/>
+
 <ul class="post-list">
 {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
   <li>
@@ -105,6 +115,8 @@ Please reach out via email !
       code is just a 'pip install' away from finding a new home !
     </p>
   </li>
+
+<hr style="border: 1px solid black;"/>
 
 <ul class="post-list">
 {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}

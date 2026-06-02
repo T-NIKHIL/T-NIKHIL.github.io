@@ -236,7 +236,7 @@ show_excerpts: true
     representations called the <b> pair and single representations </b>
     which are constructed by the Input Embedder module.
 </p>
-    
+
 <figure align="center">
     <img src="/assets/blogs/alphafold3/AF3_inference_arch.jpg" alt="AF3_arch">
     <figcaption>Figure 9. High level model architecture</figcaption>

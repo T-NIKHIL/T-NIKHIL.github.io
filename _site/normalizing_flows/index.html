@@ -57,12 +57,183 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
   </header> -->
 
   <div class="post-content">
-    <!-- <p align='justify'>
-    <b><span style="color:red">DISCLAIMER</span> : BELOW CONTENT 
-    REPRESENTS AUTHORS VIEWS AND INTERPRETATIONS. 
-    FOR QUERIES USE THE COMMENT BOX BELOW.</b>
-</p>  -->
+    <p align="justify">
+    Normalizing Flows are based on a simple formula called 
+    the change of variables formula.
+    To understand how this formula works, 
+    consider a set of samples $x$ drawn 
+    from a normal distribution and 
+    we have a smooth and invertible function $f$.
+    I denote the samples $x$ before transformation as $x_0$
+    and those after transformation as $x_{1}$. 
+    Now these samples are distributed according to a new distribution $p_{1}$.
+    We can compute what this new distribution looks like by applying
+    the conservation of probability mass which states that 
+    the probability of an event occurring in interval $|dx_{1}|$  
+    must equal the probability of event occurring in interval $|dx_{0}|$.
+</p>
 
+\[p_{1}(x_{1})|dx_{1}| = p_{0}(x_{0})|dx_{0}|\]
+
+<p align="justify">
+    Further rearranging the terms we get
+</p>
+
+\[p_{1}(x_{1}) = p_{0}(x_{0}) \frac{|dx_{0}|}{|dx_{1}|}\]
+
+\[p_{1}(x_{1}) = p_{0}(f^{-1}(x_{1})) \frac{|df^{-1}(x_{1})|}{|dx_{1}|}\]
+
+<p align="justify">
+    The above equation holds is for the 1D case, 
+    when dealing with multi-dimensional probability distributions
+    we compute the determinant
+</p>
+
+\[p_{1}(x_{1}) = p_{0}(f^{-1}(x_{1})) | \det \frac{df^{-1}(x_{1})}{dx_{1}} |\]
+
+<p align="justify">
+    If $f(x)$ is a linear transformation i.e $ x_1 = f(x_0) = A x_0 $ then 
+    the change of variables can be written as :
+</p>
+
+\[p_{1}(x_{1}) = p_{0}(f^{-1}(x_{1})) | \det A^{-1} |\]
+
+<p align="justify">
+    Lets look at an example to see this formula in action : 
+</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Parameters for p0 dist
+</span><span class="n">mu</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+<span class="n">bins</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="c1"># I use a normal distribution for p0
+</span><span class="n">x0_samples</span> <span class="o">=</span> <span class="n">rng</span><span class="p">.</span><span class="nf">normal</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">hist</span><span class="p">(</span><span class="n">x0_samples</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sh">'</span><span class="s">Empirical p0 dist</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+
+<span class="c1"># Defining a smooth and invertible function f
+</span><span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="nf">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># x**2
+</span><span class="n">f_inv</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># np.sqrt(x)
+</span><span class="n">df_invdx</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="n">x</span> <span class="c1"># 0.5*(x**(-0.5))
+</span>
+<span class="c1"># Generating transformed samples
+</span><span class="n">x1_samples</span> <span class="o">=</span> <span class="nf">f</span><span class="p">(</span><span class="n">x0_samples</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">count</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">ignored</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="nf">hist</span><span class="p">(</span><span class="n">x1_samples</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sh">'</span><span class="s">Empirical p1 dist</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div style="text-align: center;">
+    <img src="/assets/blogs/normalizing_flows/empirical_p0_p1.pdf" alt="Empirical p0 and p1 distributions" width="300" height="400" />
+    <figcaption>Figure 1. Empirical $p_0$ and $p_1$ distributions</figcaption>
+</div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">p0</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+  <span class="nf">return </span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="p">.</span><span class="n">pi</span><span class="o">*</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="p">.</span><span class="nf">exp</span><span class="p">(</span><span class="o">-</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">logp0</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="p">.</span><span class="n">pi</span><span class="o">*</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">-</span> <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">hist</span><span class="p">(</span><span class="n">x1_samples</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sh">'</span><span class="s">skyblue</span><span class="sh">'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sh">'</span><span class="s">Empirical p1 dist</span><span class="sh">'</span><span class="p">)</span>
+<span class="c1"># Plot theoretical PDF using Change of Variables
+</span><span class="n">x1_range</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">np</span><span class="p">.</span><span class="nf">max</span><span class="p">(</span><span class="n">bins</span><span class="p">),</span> <span class="n">samples</span><span class="p">)</span>
+<span class="n">p1</span> <span class="o">=</span> <span class="nf">p0</span><span class="p">(</span><span class="nf">f_inv</span><span class="p">(</span><span class="n">x1_range</span><span class="p">),</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="nf">df_invdx</span><span class="p">(</span><span class="n">x1_range</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">plot</span><span class="p">(</span><span class="n">x1_range</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="sh">'</span><span class="s">r-</span><span class="sh">'</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sh">'</span><span class="s">Theoretical (Change of Variables)</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">legend</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div style="text-align: center;">
+    <img src="/assets/blogs/normalizing_flows/theoretical_p1.pdf" alt="Theoretical p1 distribution" width="300" height="200" />
+    <figcaption>Figure 2. Comparison of empirical $p_1$ distribution versus computed from Change of variables formula</figcaption>
+</div>
+
+<h5 id="Sec1"><b> Composing multiple bijections </b></h5>
+
+<p align="justify">
+    Normalizing flows are able to learn complex distributions
+    starting from simple priors by applying a sequence of invertible 
+    transformations whose Jacobians are much more efficient to
+    compute than one single complex invertible mapping.
+</p>
+
+\[x_{0} \xrightarrow{f_{1}} x_{1} \xrightarrow{f_{2}} \dots \xrightarrow{f_{L}} x_{L}\]
+
+<p align="justify">
+    Each $f_{k}$ for $k \in \{k=1 \dots L\}$ follows a smooth bijection. 
+    If the initial samples $x_{0}$ follows the distribution $p_{0}$ then,
+    each subsequent sample follows distributions $p_{1}$ to $p_{L}$. 
+    The transformation path of the samples is called <i>flow</i> while 
+    the path traced by the distributions is called the <i>normalizing flow</i>. 
+    The change of variables formula can be applied to compute the theoretical
+    distribution at each stage :
+</p>
+
+\[p_{k}(x_{k}) = p_{k-1}(x_{k-1})| \det \frac{\partial f_{k}(x_{k-1})}{\partial x_{k-1}}|^{-1}\]
+
+\[p_{k}(x_{k}) = p_{\rm{prior}}(x_{0}) \prod_{i=1}^{L-1} | \det \frac{\partial f_{k}(x_{k})}{\partial x_{k}}|^{-1}\]
+
+\[\log p_{k}(x_{k}) = \log p_{\rm{prior}}(x_{0}) - \sum_{i=1}^{L-1} \log | \det \frac{\partial f_{k}(x_{k})}{\partial x_{k}}|\]
+
+<p align="justify">
+    The expression reflect how much each transformation stretches or 
+    contracts volume as determined by the Jacobian of the determinant. 
+    Accumulation of local volume changes along the transformation path 
+    serves as the final probability density under the composed map.
+</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Example of multiple bijections
+</span><span class="n">x2_samples</span> <span class="o">=</span> <span class="nf">f</span><span class="p">(</span><span class="n">x1_samples</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">count</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">ignored</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="nf">hist</span><span class="p">(</span><span class="n">x2_samples</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sh">'</span><span class="s">Empirical p2 dist</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">hist</span><span class="p">(</span><span class="n">x2_samples</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sh">'</span><span class="s">skyblue</span><span class="sh">'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sh">'</span><span class="s">Empirical p2 dist</span><span class="sh">'</span><span class="p">)</span>
+<span class="c1"># Plot theoretical PDF using Change of Variables
+</span><span class="n">x2_range</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">np</span><span class="p">.</span><span class="nf">max</span><span class="p">(</span><span class="n">bins</span><span class="p">),</span> <span class="n">samples</span><span class="p">)</span>
+<span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="nf">df_invdx</span><span class="p">(</span><span class="n">x2_range</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">plot</span><span class="p">(</span><span class="n">x2_range</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="sh">'</span><span class="s">r-</span><span class="sh">'</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sh">'</span><span class="s">Theoretical (Change of Variables)</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">legend</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div style="text-align: center;">
+    <img src="/assets/blogs/normalizing_flows/empirical_and_theoretical_p2.pdf" alt="Empirical and Theoretical p2 distribution" width="300" height="400" />
+    <figcaption>Figure 3. Empirical $p_2$ (top) and computed theoretical $p_2$ (bottom)</figcaption>
+</div>
+
+<p align="justify">
+    Much literature exists that look at composing transformations
+    for which the Jacobian calculation is fast. 
+    One such example are Residual flows [1][2] where the transformation looks like :
+</p>
+
+\[x_k = x_{k-1} + v(x_{k-1})\]
+
+<p align="justify">
+    The log-determinant of the jacobian looks like :
+</p>
+
+\[\log | \det \frac{\partial f_{k}(x_{k-1})}{\partial x_{k-1}}| = \log | \det (I + \frac{\partial v(x_{k-1}) }{\partial x_{k-1}})|\]
+
+\[= \det | \log (I + \frac{\partial v(x_{k-1}) }{\partial x_{k-1}})|\]
+
+\[= \rm{Tr}( \log (I + \frac{\partial v(x_{k-1}) }{\partial x_{k-1}}))\]
+
+<p>MORE UPDATES TO THIS BLOG COMING SOON !</p>
+
+<h4><b> References </b></h4>
+
+<p align="justify" id="1">[1] Behrmann, J.; Grathwohl, W.; Chen, R. T. Q.; Duvenaud, D.; Jacobsen, J.-H. Invertible Residual Networks. <em>arXiv</em> <b>2019</b> <a href="https://doi.org/10.48550/arXiv.1811.00995">https://doi.org/10.48550/arXiv.1811.00995</a>.</p>
+
+<p align="justify" id="2">[2] Chen, R. T. Q.; Behrmann, J.; Duvenaud, D.; Jacobsen, J.-H. Residual Flows for Invertible Generative Modeling. <em>arXiv</em> <b>2020</b> <a href="https://doi.org/10.48550/arXiv.1906.02735">https://doi.org/10.48550/arXiv.1906.02735</a>.</p>
 
   </div>
 
