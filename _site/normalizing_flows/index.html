@@ -58,8 +58,7 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
 
   <div class="post-content">
     <p align="justify">
-    Normalizing Flows are based on a simple formula called 
-    the change of variables formula.
+    Normalizing Flows are based on the change of variables formula.
     To understand how this formula works, 
     consider a set of samples $x$ drawn 
     from a normal distribution and 
@@ -76,7 +75,7 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
 \[p_{1}(x_{1})|dx_{1}| = p_{0}(x_{0})|dx_{0}|\]
 
 <p align="justify">
-    Further rearranging the terms we get
+    Further rearranging the terms and substituting $x_0 = f^{-1}(x_1)$
 </p>
 
 \[p_{1}(x_{1}) = p_{0}(x_{0}) \frac{|dx_{0}|}{|dx_{1}|}\]
@@ -84,7 +83,7 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
 \[p_{1}(x_{1}) = p_{0}(f^{-1}(x_{1})) \frac{|df^{-1}(x_{1})|}{|dx_{1}|}\]
 
 <p align="justify">
-    The above equation holds is for the 1D case, 
+    The above equation holds for the 1D case but
     when dealing with multi-dimensional probability distributions
     we compute the determinant
 </p>
@@ -169,8 +168,8 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
     Each $f_{k}$ for $k \in \{k=1 \dots L\}$ follows a smooth bijection. 
     If the initial samples $x_{0}$ follows the distribution $p_{0}$ then,
     each subsequent sample follows distributions $p_{1}$ to $p_{L}$. 
-    The transformation path of the samples is called <i>flow</i> while 
-    the path traced by the distributions is called the <i>normalizing flow</i>. 
+    The transformation path of the samples is called <b>flow</b> while 
+    the path traced by the distributions is called the <b>normalizing flow</b>. 
     The change of variables formula can be applied to compute the theoretical
     distribution at each stage :
 </p>
@@ -182,10 +181,8 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
 \[\log p_{k}(x_{k}) = \log p_{\rm{prior}}(x_{0}) - \sum_{i=1}^{L-1} \log | \det \frac{\partial f_{k}(x_{k})}{\partial x_{k}}|\]
 
 <p align="justify">
-    The expression reflect how much each transformation stretches or 
-    contracts volume as determined by the Jacobian of the determinant. 
-    Accumulation of local volume changes along the transformation path 
-    serves as the final probability density under the composed map.
+    The expression reflects how much each transformation stretches or 
+    contracts volume as determined by the Jacobian.
 </p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Example of multiple bijections
@@ -210,30 +207,339 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
 </div>
 
 <p align="justify">
-    Much literature exists that look at composing transformations
+    Much literature exists that looks at composing transformations
     for which the Jacobian calculation is fast. 
     One such example are Residual flows [1][2] where the transformation looks like :
 </p>
 
-\[x_k = x_{k-1} + v(x_{k-1})\]
+\[x_k = f(x_{k-1}) = x_{k-1} + g(x_{k-1})\]
 
 <p align="justify">
     The log-determinant of the jacobian looks like :
 </p>
 
-\[\log | \det \frac{\partial f_{k}(x_{k-1})}{\partial x_{k-1}}| = \log | \det (I + \frac{\partial v(x_{k-1}) }{\partial x_{k-1}})|\]
+\[\log | \det \frac{\partial f_{k}(x_{k-1})}{\partial x_{k-1}}| = \log | \det (I + \frac{\partial g(x_{k-1}) }{\partial x_{k-1}})|\]
 
-\[= \det | \log (I + \frac{\partial v(x_{k-1}) }{\partial x_{k-1}})|\]
+\[= \det | \log (I + \frac{\partial g(x_{k-1}) }{\partial x_{k-1}})|\]
 
-\[= \rm{Tr}( \log (I + \frac{\partial v(x_{k-1}) }{\partial x_{k-1}}))\]
+\[= \textrm{Tr}( \log (I + \frac{\partial g(x_{k-1}) }{\partial x_{k-1}}))\]
 
-<p>MORE UPDATES TO THIS BLOG COMING SOON !</p>
+<h5 id="Sec2"><b> From discrete time updates to continuous time updates (Neural Ordinary Differential Equations (NODES))  </b></h5>
+
+<p align="justify">
+    In the limit of infinite layers or transformations the updates
+</p>
+
+\[x_k = f(x_{k-1}) = x_{k-1} + g(x_{k-1})\]
+
+<p align="justify">
+    can be formulated within the framework of <b>NODES</b> 
+    (also called as <b>Continuous Normalizing Flows</b>).
+</p>
+
+\[\frac{dx_t}{dt} = g_{\phi}(x_{t}, t)\]
+
+<p align="justify">
+    The goal is to train a neural network that can learn 
+    this velocity field $g_{\phi}(x_{t}, t)$ which transport 
+    points starting from  $p_{\rm{prior}}(x_{0}, 0)$ to the
+    desired data distribution $p_{\rm{data}}(.)$.
+    A continuous time variant of the discrete change of variables
+    formula was introduced by Chen <i>et. al.</i>[3] and
+    is referred to as the <b>instantaneous change of variables</b>. 
+    It can be derived from the discrete change of variables 
+    formula but is a bit involved which is why I 
+    recommend the reader to check out the derivation for
+    themselves in Appendix A of the paper [3].
+</p>
+
+\[\frac{\partial \log p(x_t,t)}{\partial t} = - \nabla_x . g_{\phi}(x_{t}, t)\]
+
+<p align="justify">
+    The log density of the terminal PDF induced 
+    by the neural ODE $ \frac{dx_t}{dt} = g_{\phi}(x_{t}, t) $
+    is given by 
+</p>
+
+\[\log p(x_T, T) = \log p_{\rm{prior}}(x_0, 0) - \int_0^T \nabla_x . g_{\phi}(x_{t}, t) dt\]
+
+<p align="justify">
+    which allows one to construct objective
+    functions $\mathcal{L}_{\rm{NODE}} = \mathbb{E}_{x \sim p_{\rm{data}}} [\log p(x_T, T)] $ that maximize the likelihood and 
+    generate gradients for updating the model parameters $\phi$.
+    Maximizing $\mathcal{L}_{\rm{NODE}}$ requires backpropogating
+    through the ODE solver. 
+    The adjoint sensitivity method computes gradients via an 
+    auxiliary ODE with O(1) memory complexity, 
+    but NODE training remains expensive due to numerical
+    integration at each step.
+</p>
+
+<blockquote>
+
+  <p>The instantaneous change of variables is 
+a special case of the Fokker-Planck equation with 
+$D(x_t, t) = 0$.</p>
+
+\[\begin{align}
+        \frac{\partial p(x_t, t)}{\partial t} &amp;= -\nabla_x . (p(x_t, t)g(x_t, t)) + \nabla_x^2(p(x_t, t)D(x_t, t)) \\
+        \frac{\partial p(x_t, t)}{\partial t} &amp;= -\nabla_x . (p(x_t, t)g(x_t, t)) \\
+        \frac{\partial p(x_t, t)}{\partial t} &amp;= -g(x_t, t)\nabla_x p(x_t, t) - p(x_t, t)\nabla_x g(x_t, t)  \quad \textrm{(PRODUCT RULE)} \\
+    \end{align}\]
+
+  <p>From the chain rule of partial derivatives we can write $\frac{\partial p(x_t, t)}{\partial t}$ as</p>
+
+\[\begin{align}
+        \frac{\partial p(x_t, t)}{\partial t} &amp;= \frac{\partial p(x_t, t)}{\partial x_t}\frac{\partial x_t}{\partial t} + \frac{\partial p(x_t, t)}{\partial t} \\
+        \frac{\partial p(x_t, t)}{\partial t} &amp;= \frac{\partial p(x_t, t)}{\partial x_t}g(x_t, t) + \frac{\partial p(x_t, t)}{\partial t}
+    \end{align}\]
+
+  <p>Substituting the product rule in the chain rule we get the instantaneous change of variables formula</p>
+
+  <p>\(\frac{\partial p(x_t, t)}{\partial t} = \cancel{g(x_t, t)\nabla_x p(x_t, t)} - \cancel{g(x_t, t)\nabla_x p(x_t, t)} - p(x_t, t)\nabla_x g(x_t, t){\partial t}\)
+\(\frac{\partial \log p(x_t, t)}{\partial t} = -\nabla_x g(x_t, t)\)</p>
+
+</blockquote>
+
+<h5 id="Sec3"><b> Viewing datapoints as particles </b></h5>
+
+<p align="justify">
+    The <b>Langevin equation</b> describes the forces acting on a particle as a sum of a viscous force proportional to the particle's velocity $\gamma v$ and a noise term $dW_t$.
+</p>
+
+\[m\frac{dv}{dt} = -\gamma v + F(x) + \sigma dW_t\]
+
+<p align="justify">
+    At equilibrium when the frictional forces $|\gamma v|$ dominate the inertial forces $|ma|$ then we get the <b>overdamped Langevin Equation</b> 
+</p>
+
+\[\begin{align}
+        \gamma \frac{dx}{dt} &amp;= F(x) + \sigma dW_t \\
+        \frac{dx}{dt} &amp;= \frac{1}{\gamma} F(x) + \frac{\sigma}{\gamma} dW_t \\
+        \frac{dx}{dt} &amp;= -\frac{1}{\gamma} \frac{dU}{dx} + \frac{\sigma}{\gamma} dW_t
+    \end{align}\]
+
+<p align="justify">
+    From the <a href="https://en.wikipedia.org/wiki/Einstein_relation_(kinetic_theory)">Einstein relation</a> $ D = \mu k_B T $ where $\mu $ is the ratio of the 
+    particle's terminal drift velocity to an applied force. 
+    We can see from the above equation that $\gamma$ is inverse of mobility $\mu$ 
+    hence $ D = \frac{k_B T}{\gamma} $.
+    $D$ is also parametrized as $D=\frac{\sigma^2}{2}=\frac{\sigma^2}{2\gamma^2}$ 
+    (see <a href="https://en.wikipedia.org/wiki Fokker–Planck_equation">Fokker Planck equation</a>)
+    Combining these 2 relationships, 
+    we get the well known result from the <b>fluctuation-dissipation theorem</b> $\sigma = \sqrt{2\gamma k_B T}$
+</p>
+
+\[\frac{dx}{dt} = -\beta D \frac{dU}{dx} + \sqrt{2D} dW_t\]
+
+<p align="justify">
+    More generally the Itô process describes the flow of a particle $dx(t)$ 
+    through a <b>drift term $g(x(t), t)$</b> and a 
+    <b>diffusion coefficient $h(x(t), t)$</b>.
+    The diffusion coefficient modulates a continuous time stochastic process $W(t)$ 
+    called the <b>Wiener process</b> (standard Brownian Motion).  
+</p>
+
+\[dx_t = g(x_t, t)dt + h(x_t, t)dW_t\]
+
+<p align="justify">
+    Gaussian increments : For $ 0&lt;=s&lt;t$ $ w(t) - w(s) = N(0, (t-s)I_{D})$ 
+    The increments are independent of the past.
+    The change in the distribution/density of the particles is defined by the Fokker Planck equation :
+</p>
+
+\[\frac{\partial p(x_t, t)}{\partial t} = - \nabla_x .(p(x_t, t)g(x_t, t)) + \frac{1}{2} \nabla_x^2 p(x_t, t)h^2(x_t, t)\]
+
+<p align="justify">
+    From the overdamped langevin equation, substituting $\frac{h^2(x_t, t)}{2} = D$ and $g(x_t, t)=-\beta D \nabla U$ we get 
+</p>
+
+\[\begin{align}
+        \frac{\partial p(x_t, t)}{\partial t} &amp;= \nabla_x . (p(x_t, t) \beta D \nabla_x U) + \nabla_x^2 p(x_t, t)D \\
+        \frac{\partial p(x_t, t)}{\partial t} &amp;= \nabla_x . (p(x_t, t) \beta D \nabla_x U)+ \nabla_x . \nabla_x p(x_t, t)D \\
+        \frac{\partial p(x_t, t)}{\partial t} &amp;= \nabla_x . (p(x_t, t) \beta D \nabla_x U)+ \nabla_x . (D \nabla_x p(x_t, t) + \cancelto{0}{p(x_t, t) \nabla_x D} ) \\
+        \frac{\partial p(x_t, t)}{\partial t} &amp;= \nabla_x . (p(x_t, t) \beta D \nabla_x U)+ \nabla_x . D \nabla_x p(x_t, t) \\
+        \frac{\partial p(x_t, t)}{\partial t} &amp;= \nabla_x . D(\beta \nabla_x U + \nabla_x)p(x_t, t)
+    \end{align}\]
+
+<p align="justify">
+    The above equation is called the <b>Smolchowski equation</b>. 
+    Defining a flow produces a unique density evolution. 
+    However, describing a density evolution does not prescribe a unique flow.
+    We will come back to this idea in the <b>Flow Matching</b> section.
+</p>
+
+<blockquote>
+
+  <p><strong>Theoretical probability distribution for the Weiner process</strong></p>
+
+\[g(x_t, t) = 0 ; h(t) = 1\]
+
+\[\frac{\partial p(x_t, t)}{\partial t} = \frac{1}{2} \frac{\partial^2 p(x_t, t)}{\partial x^2}\]
+
+  <p>Using initial conditions $p(x, 0) = \delta(x)$ and applying separation of variables we get the following solution :</p>
+
+\[p(x_t, t) = \frac{1}{\sqrt{2\pi t}} e^{\frac{-x^2}{2t}}\]
+
+</blockquote>
+
+<p align="justify">
+    Lets simulate the weiner process and 
+    compare histogram of particle positions to
+    the theoretical distribution obtained from the
+    Fokker Planck equation.
+</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Examples of particle ODEs
+</span><span class="k">class</span> <span class="nc">ParticleODE</span><span class="p">():</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">T</span> <span class="o">=</span> <span class="n">T</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">N</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">process</span>
+
+  <span class="k">def</span> <span class="nf">weiner</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">dW</span> <span class="o">=</span> <span class="n">rng</span><span class="p">.</span><span class="nf">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">dt</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">dW</span>
+    <span class="k">return</span> <span class="n">dx</span>
+
+  <span class="k">def</span> <span class="nf">overdamped_langevin</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">D</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="c1"># force = lambda x : 0.2*(x + 0.1) - 0.02*(x - 0.1)**3
+</span>    <span class="n">dUdx</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="n">c</span>
+    <span class="n">dxdt</span> <span class="o">=</span> <span class="o">-</span><span class="n">beta</span><span class="o">*</span><span class="n">D</span><span class="o">*</span><span class="nf">dUdx</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">D</span><span class="p">)</span><span class="o">*</span><span class="n">self</span><span class="p">.</span><span class="nf">weiner</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dxdt</span>
+
+  <span class="k">def</span> <span class="nf">potential</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="c1"># Double Well potential
+</span>    <span class="c1"># return -0.1*(x + 0.1)**2 + 0.005*(x - 0.1)**4
+</span>    <span class="c1"># Linear potential
+</span>    <span class="k">return</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span>
+
+  <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">process</span> <span class="o">==</span> <span class="sh">'</span><span class="s">weiner</span><span class="sh">'</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">weiner</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">self</span><span class="p">.</span><span class="n">process</span> <span class="o">==</span> <span class="sh">'</span><span class="s">overdamped_langevin</span><span class="sh">'</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">overdamped_langevin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="nc">Exception</span><span class="p">(</span><span class="sh">"</span><span class="s">Process not Defined !</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">T</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">))</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+<span class="n">x_hist</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">zeros</span><span class="p">((</span><span class="nf">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">N</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nf">enumerate</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+  <span class="n">particle_ode</span> <span class="o">=</span> <span class="nc">ParticleODE</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="sh">'</span><span class="s">weiner</span><span class="sh">'</span><span class="p">)</span>
+  <span class="n">x</span> <span class="o">+=</span> <span class="n">particle_ode</span><span class="p">.</span><span class="nf">step</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="n">x_hist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+
+<span class="n">total_frames</span> <span class="o">=</span> <span class="n">T</span>
+<span class="n">samples_per_frame</span> <span class="o">=</span> <span class="n">N</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="nf">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">rlim</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+<span class="n">llim</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">bin_width</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="n">rlim</span><span class="p">,</span> <span class="n">llim</span><span class="p">,</span> <span class="n">bin_width</span><span class="p">)</span>
+
+<span class="c1"># Define the animation function (called sequentially for each frame)
+</span><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+  <span class="n">ax</span><span class="p">.</span><span class="nf">clear</span><span class="p">()</span>
+
+  <span class="c1"># Set static plot limits and labels
+</span>  <span class="n">ax</span><span class="p">.</span><span class="nf">set_xlim</span><span class="p">(</span><span class="n">rlim</span><span class="p">,</span> <span class="n">llim</span><span class="p">)</span>
+  <span class="n">ax</span><span class="p">.</span><span class="nf">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="n">ax</span><span class="p">.</span><span class="nf">set_title</span><span class="p">(</span><span class="sh">"</span><span class="s">Weiner Process</span><span class="sh">"</span><span class="p">)</span>
+  <span class="n">ax</span><span class="p">.</span><span class="nf">set_xlabel</span><span class="p">(</span><span class="sh">"</span><span class="s">Value</span><span class="sh">"</span><span class="p">)</span>
+  <span class="n">ax</span><span class="p">.</span><span class="nf">set_ylabel</span><span class="p">(</span><span class="sh">"</span><span class="s">Density</span><span class="sh">"</span><span class="p">)</span>
+  <span class="n">ax</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="sh">"</span><span class="s">--</span><span class="sh">"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+
+  <span class="n">current_data_size</span> <span class="o">=</span> <span class="n">samples_per_frame</span>
+  <span class="n">current_data</span> <span class="o">=</span> <span class="n">x_hist</span><span class="p">[</span><span class="n">frame</span><span class="p">,</span> <span class="p">:]</span>
+
+  <span class="n">ax</span><span class="p">.</span><span class="nf">hist</span><span class="p">(</span>
+      <span class="n">current_data</span><span class="p">,</span>
+      <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
+      <span class="n">density</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+      <span class="n">color</span><span class="o">=</span><span class="sh">"</span><span class="s">royalblue</span><span class="sh">"</span><span class="p">,</span>
+      <span class="n">edgecolor</span><span class="o">=</span><span class="sh">"</span><span class="s">black</span><span class="sh">"</span><span class="p">,</span>
+      <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span>
+  <span class="p">)</span>
+
+  <span class="n">x_range</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+  <span class="n">p</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="p">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="mf">0.0000001</span><span class="p">)))</span><span class="o">*</span><span class="n">np</span><span class="p">.</span><span class="nf">exp</span><span class="p">((</span><span class="o">-</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="mf">0.0000001</span><span class="p">)))</span>
+
+  <span class="c1"># For the wiener process
+</span>  <span class="n">ax</span><span class="p">.</span><span class="nf">plot</span><span class="p">(</span><span class="n">x_range</span><span class="p">,</span> <span class="nf">p</span><span class="p">(</span><span class="n">x_range</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="n">frame</span><span class="p">]),</span> <span class="n">c</span><span class="o">=</span><span class="sh">'</span><span class="s">orange</span><span class="sh">'</span><span class="p">)</span>
+
+  <span class="n">ax</span><span class="p">.</span><span class="nf">text</span><span class="p">(</span>
+          <span class="o">-</span><span class="mf">3.8</span><span class="p">,</span>
+          <span class="mf">0.45</span><span class="p">,</span>
+          <span class="sa">f</span><span class="sh">"</span><span class="s">Total Samples: </span><span class="si">{</span><span class="n">current_data_size</span><span class="si">}</span><span class="sh">"</span><span class="p">,</span>
+          <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+          <span class="n">bbox</span><span class="o">=</span><span class="nf">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="sh">"</span><span class="s">white</span><span class="sh">"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">),</span>
+      <span class="p">)</span>
+
+<span class="c1"># Create the animation object
+# frames=100 means the update function will be called 100 times
+# interval=20 means 20 milliseconds between frames in the live preview
+# Omit init_func and set 'blit=False' because ax.clear() redraws everything.
+</span><span class="n">ani</span> <span class="o">=</span> <span class="n">animation</span><span class="p">.</span><span class="nc">FuncAnimation</span><span class="p">(</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">update</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="nf">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">blit</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">20</span>
+<span class="p">)</span>
+
+<span class="c1"># Save the animation as a GIF using the Pillow writer
+# fps=30 means 30 frames per second in the final GIF file
+</span><span class="n">output_filename</span> <span class="o">=</span> <span class="sh">"</span><span class="s">weiner_process.gif</span><span class="sh">"</span>
+<span class="n">ani</span><span class="p">.</span><span class="nf">save</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="n">writer</span><span class="o">=</span><span class="sh">"</span><span class="s">pillow</span><span class="sh">"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Animation successfully saved as </span><span class="si">{</span><span class="n">output_filename</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+</code></pre></div></div>
+<div style="text-align: center;">
+    <img src="/assets/blogs/normalizing_flows/weiner_process.gif" alt="Weiner Process" width="400" height="250" />
+    <figcaption> Figure 4. Weiner Process </figcaption>
+</div>
+
+<p align="justify">
+    Using the above code we can also simulate 
+    the overdamped langevin process. 
+    In this case the theoretical distribution
+    computed from the Smolchowski equation is 
+    (Ref : <a href="https://en.wikipedia.org/wiki/Fokker–Planck_equation">Wikipedia</a>)
+</p>
+
+\[P(x, t | x_0, t_0) = \frac{1}{\sqrt{4\pi D(t- t_0)}} \exp \left[ \frac{-1}{2}\frac{(x - x_0 + D\beta c(t - t_0))^2}{4D(t-t_0)} \right]\]
+
+<p align="justify">
+    To create the below simulation I used 
+    $D=1, \beta=0.2, c=2$
+</p>
+
+<div style="text-align: center;">
+    <img src="/assets/blogs/normalizing_flows/overdamped_langevin.gif" alt="Overdamped Langevin Process" width="400" height="250" />
+    <figcaption> Figure 5. Overdamped Langevin </figcaption>
+</div>
+
+<h5 id="Sec4"><b> Flow Matching </b></h5>
+
+<p>Will be updated soon !</p>
+
+<script src="https://giscus.app/client.js" data-repo="T-NIKHIL/T-NIKHIL.github.io" data-repo-id="R_kgDOMMGitw" data-category="Announcements" data-category-id="DIC_kwDOMMGit84C7ixL" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light_high_contrast" data-lang="en" crossorigin="anonymous" async="">
+</script>
 
 <h4><b> References </b></h4>
 
 <p align="justify" id="1">[1] Behrmann, J.; Grathwohl, W.; Chen, R. T. Q.; Duvenaud, D.; Jacobsen, J.-H. Invertible Residual Networks. <em>arXiv</em> <b>2019</b> <a href="https://doi.org/10.48550/arXiv.1811.00995">https://doi.org/10.48550/arXiv.1811.00995</a>.</p>
 
 <p align="justify" id="2">[2] Chen, R. T. Q.; Behrmann, J.; Duvenaud, D.; Jacobsen, J.-H. Residual Flows for Invertible Generative Modeling. <em>arXiv</em> <b>2020</b> <a href="https://doi.org/10.48550/arXiv.1906.02735">https://doi.org/10.48550/arXiv.1906.02735</a>.</p>
+
+<p align="justify" id="3">[3] Chen, R. T. Q.; Rubanova, Y.; Bettencourt, J.; Duvenaud, D. Neural Ordinary Differential Equations. <em>arXiv</em> <b>2019</b> <a href="https://doi.org/10.48550/arXiv.1806.07366">https://doi.org/10.48550/arXiv.1806.07366</a>.</p>
 
   </div>
 

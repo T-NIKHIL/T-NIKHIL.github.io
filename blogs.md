@@ -14,14 +14,17 @@ Please reach out via email !
 <ul class="post-list">
 {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
   <li>
-    <span class="post-meta">{{ '2026-04-22' | date: date_format }}</span>
+    <span class="post-meta">{{ '2026-06-2' | date: date_format }}</span>
     <h3>
       <a class="post-link" href="/normalizing_flows/index.html" style="color: #0055ff">
         Normalizing Flows
       </a>
     </h3>
     <p align='justify'>
-      (Under construction)
+      These are a class of generative models that are often cited as flow
+      models as they leverage the change-of-variables formula from probability theory
+      to transform samples from a simple prior distribution, to model the desired
+      data distribution, via a sequence of invertible transformations.
     </p>
   </li>
 
@@ -30,7 +33,7 @@ Please reach out via email !
 <ul class="post-list">
 {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
   <li>
-    <span class="post-meta">{{ '2026-04-22' | date: date_format }}</span>
+    <span class="post-meta">{{ '2026-05-11' | date: date_format }}</span>
     <h3>
       <a class="post-link" href="/denoising_diffusion_probabilistic_models/index.html" style="color: #0055ff">
         Denoising Diffusion Probabilistic Models
@@ -38,7 +41,7 @@ Please reach out via email !
     </h3>
     <p align='justify'>
       In this blogpost I dive into a popular class of generative models called 
-      denoising diffusion probabilistic models. (Under construction)
+      denoising diffusion probabilistic models.
     </p>
 </li>
 
