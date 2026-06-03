@@ -54,7 +54,7 @@ layout: home
     <p>
         I am currently seeking postdoctoral opportunities in AI + Biophysics. 
         I am a firm believer that the best insights come from unexpected conversations. 
-        Whether you are in academia, tech, want to nerd out about AI or just say Hi! - let's connect !
+        Whether you are in academia, tech, want to nerd out about AI or just say Hi! - <a href="mailto:nikthota7@gmail.com">let's connect !</a>
     </p>
   </div>
   <div style="margin-left: 20px; margin-top: 5px">
