@@ -41,7 +41,7 @@ Please reach out via email !
     </h3>
     <p align='justify'>
       In this blogpost I dive into a popular class of generative models called 
-      denoising diffusion probabilistic models.
+      diffusion probabilistic models.
     </p>
 </li>
 
