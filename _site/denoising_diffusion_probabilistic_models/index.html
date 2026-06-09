@@ -73,7 +73,7 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
     Note that this is different from the case when we have some approximate analytical 
     distribution to start off with which is easy to evaluate but hard to sample from. 
     In such cases algorithms like 
-    <a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm$0">Metropolis Hastings Algorithm</a>
+    <a href="https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm$0">Metropolis Hastings</a>
     and
     <a href="https://arxiv.org/abs/physics/9803008$0">Annealed Importance Sampling (AIS)</a> help.
 </p>
@@ -134,7 +134,7 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
     actually models the mean and standard deviation of this distribution.
     Similarly, $q_{\phi}(x|z)$ is also modelled as a
     multivariate Gaussian distribution but with fixed variance $\sigma^2$.
-    The reparametrization technique 
+    The <a href="https://en.wikipedia.org/wiki/Reparameterization_trick">reparametrization technique</a> 
     uses the predicted mean and standard deviation to
     generate samples of $z$ from the probabilistic encoder. 
     This clever use of the reparametrization technique also solves the issue
@@ -230,22 +230,241 @@ async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></hea
 <h5 id="Sec1"><b> Denoising Diffusion Probabilistic Model (DDPM)</b></h5>
 
 <p align="justify">
-    Unlike VAEs, diffusion probabilistic models (or simply diffusion models) 
-    define a forward Markov chain that progressively adds gaussian noise 
-    to data samples until the samples resemble data from a standard normal distribution.
-    A reverse Markov process uses samples from this distribution and 
-    progressively denoises them for a set number of transitions until (hopefully!) 
-    we get samples resembling from the desired data distribution. 
-    Sounds like magic right ! I felt too until I really pulled up my sleeves
-    and dug into the math.
+    Like in VAEs, diffusion probabilistic models (or simply diffusion models) 
+    use neural networks to approximate the conditional
+    distributions ($p_\theta(x|z)$ and $p_\theta(z|x)$) 
+    but the <b>crucial difference is that instead 
+    of just 1 intermediate random variable $z$, 
+    diffusion models have $T$ random variables $x_{0:T} = {x_0, x_1 \dots x_T}$
+    all with the same dimensionality.</b>
+    The insight is that by having multiple random variables
+    we can chain the transition densities 
+    ($p_\theta(x_{t-1}|x_t)$ and $p_\theta(x_t|x_{t-1})$) to form a
+    <a href="https://en.wikipedia.org/wiki/Markov_chain">Markov chain</a>
+    that we can use to sample from any complex distribution.
+    Does this ring a bell ? 
+    This is exactly what 
+    <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">Markov Chain Monte Carlo</a> does !
+    DDPMs define these transition densities as multivariate Gaussian distributions
+    that progressively corrupt the data samples with Gaussian noise until
+    the samples resemble those from a standard normal distribution. 
+    This is called as the <b>forward Markov Chain</b>.
+    A <b>reverse Markov chain</b> is also defined using multivariate Gaussian
+    distributions which take the corrupted data samples as input and 
+    progressively denoise them for a set number of transitions until (hopefully!) 
+    we get samples resembling that from the desired data distribution.
+    All this sounded like latin to me when I first glanced over
+    the paper until I pulled up my sleeves and started to really 
+    understand what was going on in the math. 
 <p>
 
-<b> The Forward Markov Chain </b>
+<div style="text-align: center;">
+    <img src="/assets/blogs/denoising_diffusion_probabilistic_models/DDPM.pdf" alt="Forward and Reverse Markov Processes of DDPM" width="650" height="100" />
+    <figcaption> Figure 2. Forward and Reverse Markov Processes in the Denoising Diffusion Probabilistic Model </figcaption>
+</div>
 
 <p align="justify">
-    
+    We start with a few clean data samples $x_0$
+    for which we would like to estimate 
+    the density $p_{\theta}(x_0)$. 
+    We train the diffusion models to maximize the likelihood
+    that the samples it produces belong to this 
+    data distribution. 
+    To put it mathematically, we start 
+    with the marginal likelihood equation
+    just as we did in the VAE case.
 </p>
-</p></p>
+
+$$
+    p_{\theta}(x_0) = \int p_{\theta}(x_{0:T})dx_{1:T}
+$$
+
+<p align="justify">
+    Then we multiply and divide by 
+    $p_{\theta}(x_{1:T}|x_0) = \prod_{i=1}^T p_{\theta}(x_t|x_{t-1})$
+    which is the forward Markov chain.
+</p>
+
+$$
+    p_{\theta}(x_0) = \int p_{\theta}(x_{1:T}|x_0) \frac{p_{\theta}(x_{0:T})}{p_{\theta}(x_{1:T}|x_0)} dx_{1:T}
+$$
+
+<p align="justify">
+    The authors in the <a href="https://arxiv.org/abs/2006.11239">paper</a>
+    use a fixed forward Markov chain which simplifies the loss calculation
+    so lets stick with that and I adjust the notation to $q(x_{1:T}|x_0)$
+    to indicate that there are no learnable parameters.
+</p>
+
+$$
+    \begin{align}
+        p_{\theta}(x_0) &amp;= \int q(x_{1:T}|x_0) \frac{p_{\theta}(x_{0:T})}{q(x_{1:T}|x_0)} dx_{1:T} \\
+        p_{\theta}(x_0) &amp;= \mathbb{E}_{q} \left[ \frac{p_{\theta}(x_{0:T})}{q(x_{1:T}|x_0)} \right]
+    \end{align}
+$$
+
+<p align="justify">
+    Taking log on both sides and applying Jensen's inequality
+</p>
+
+$$
+    \log (p_{\theta}(x_0)) \geq \mathbb{E}_{q} \left[ \log \frac{p_{\theta}(x_{0:T})}{q(x_{1:T}|x_0)} \right]
+$$
+
+<b>Reverse Markov Chain</b>
+
+<p align="justify">
+    We start with a few clean data samples $x_0$
+    for which we would like to estimate 
+    the density $p_{\theta}(x_0)$. 
+    Now as seen before with VAEs, we can compute
+    this density using the marginal likelihood equation
+    where we integrate over all but the $x_0$ variable.
+</p>
+
+$$
+    p_\theta(x_0) = \int p_\theta(x_{0:T}) dx_{1:T}
+$$
+
+<p align="justify">
+    We can simplify further by rewriting the
+    joint distribution $p_\theta(x_{0:T})$ as
+    a product of the transition densities in
+    the reverse Markov chain using the 
+    conditional probability equation.
+</p>
+
+$$
+    p_\theta(x_0) = \int p_{\theta}(x_T) \prod_{t=1}^{T} p_{\theta}(x_{t-1}|x_t) dx_{1:T}
+$$
+
+<p align="justify">
+    As mentioned above $p_{\theta}(x_{t-1}|x_t)$ are defined as 
+    multivariate Gaussian distributions whose 
+    mean and standard deviations are parametrized
+    by $x_t$ and $t$
+</p>
+
+$$
+    p_{\theta}(x_{t-1}|x_t) = \mathcal{N}(x_{t-1} | \mu_{\theta}(x_t, t), \sigma_{\theta}(x_t, t))
+$$
+
+<p align="justify">
+    However we are again faced with the issue that
+    these posteriors cannot be computed using Bayes theorem 
+</p>    
+
+$$
+    p_{\theta}(x_{t-1}|x_t) = \frac{p_{\theta}(x_{t}|x_{t-1})p_{\theta}(x_{t-1})}{p_{\theta}(x_{t})}
+$$
+
+<p align="justify">    
+    since we don't
+    have access to the marginals $p_{\theta}(x_{t-1})$
+    and $p_{\theta}(x_{t})$.
+    So like we saw before we approximate the
+    posteriors using neural networks.
+    More on that a bit later.
+</p>
+
+<p align="justify">
+    Lets focus our discussion 
+</p>
+
+<b>Forward Markov Chain</b>
+
+<p align="justify">
+    The transition densities in the forward chain
+    are defined according to a variance schedule
+    $\beta_1, \beta_2 \dots \beta_T$ which can be 
+    defined a priori or kept as learnable parameters.
+    The authors in the <a href="https://arxiv.org/abs/2006.11239">DDPM paper</a>
+    use a fixed forward Markov chain which simplifies the loss calculation.
+</p>
+
+$$
+    q(x_t | x_{t-1}) = \mathcal{N}(x_t|\sqrt{(1-\beta_t)}x_{t-1}, \beta_t I )
+$$
+
+<p align="justify">
+    Using the reparametrization technique we can 
+    sample from $q(x_t | x_{t-1})$ as
+</p>
+
+$$
+    x_t = \sqrt{(1-\beta_t)}x_{t-1} + \sqrt{\beta_t}\epsilon \quad \epsilon \sim \mathcal{N}(0, I)
+$$
+
+<p align="justify">
+    We see the new random variable $x_t$ is
+    essentially the sum of scaled down $x_{t-1}$ and
+    controlled amount of Guassian noise.
+    Lets derive what the reparametrization would like 
+    if we are interested to $x_t$ starting from $x_0$.
+    To start lets look at the equation for sampling $x_{t-1}$
+    and lets define a new variable $\alpha_t = 1 - \beta_t$. 
+</p>
+
+$$
+    \begin{align}
+        x_{t-1} &amp;= \sqrt{\alpha_{t-1}}x_{t-2} + \sqrt{1 - \alpha_{t-1}}\epsilon
+    \end{align}
+$$
+
+<p align="justify">
+    Substituting this in $x_t$ we get
+<p>
+
+$$
+    \begin{align}
+        x_t &amp;= \sqrt{\alpha_t}(\sqrt{\alpha_{t-1}}x_{t-2} + \sqrt{1 - \alpha_{t-1}}\epsilon) + \sqrt{1 - \alpha_t}\epsilon \\
+        x_t &amp;= \sqrt{\alpha_t \alpha_{t-1}}x_{t-2} + \sqrt{\alpha_t - \alpha_t \alpha_{t-1}}\epsilon + \sqrt{1 - \alpha_t}\epsilon
+        x_t \\
+        x_t &amp;= \sqrt{\alpha_t \alpha_{t-1}}(\sqrt{\alpha_{t-2}}x_{t-3} + \sqrt{1 - \alpha_{t-2}}\epsilon ) + \sqrt{\alpha_t - \alpha_t \alpha_{t-1}}\epsilon + \sqrt{1 - \alpha_t}\epsilon \\
+        x_t &amp;= \sqrt{\alpha_t \alpha_{t-1} \alpha_{t-2}}x_{t-3} + \sqrt{\alpha_t \alpha_{t-1} - \alpha_t \alpha_{t-1} \alpha_{t-2}}\epsilon + \sqrt{\alpha_t - \alpha_t \alpha_{t-1}}\epsilon + \sqrt{1 - \alpha_t}\epsilon
+    \end{align}
+$$
+
+<p align="justify">
+    By now you might have caught the recursion pattern.
+</p>
+
+$$
+    x_t = \sqrt{\alpha_t \alpha_{t-1} \alpha_{t-2} \dots \alpha_0}x_0 + \text{sum of normal distributions}
+$$
+
+<p align="justify">
+    Now the sum of normal distributions is
+    also a normal distribution with 
+    its variance given as the sum of 
+    variances of the individual normals.
+<p>
+
+$$
+    \begin{align}
+        \mathcal{N}(0, \sigma_1^2 I) + \mathcal{N}(0, \sigma_2^2 I) + \mathcal{N}(0, \sigma_3^2 I) &amp;= \mathcal{N}(0, (\sigma_1^2 + \sigma_2^2 + \sigma_3^2)I) \\
+        \mathcal{N}(0, (\sigma_1^2 + \sigma_2^2 + \sigma_3^2)I) &amp;= \mathcal{N}(0, (\alpha_t \alpha_{t-1} - \alpha_t \alpha_{t-1} \alpha_{t-2} + \alpha_t - \alpha_t \alpha_{t-1} + 1 - \alpha_t)I) \\
+        &amp;= \mathcal{N}(0, (1 - \alpha_t \alpha_{t-1} \alpha_{t-2})I)
+    \end{align}
+$$
+
+<p align="justify">
+    Substituting this new variance and
+    defining $\overline{\alpha_t} = \prod_{i=0}^{t}\alpha_i $,
+    we can rewrite the reparametrization as 
+</p>
+
+$$
+    x_t = \sqrt{\overline{\alpha_t}}x_{0} + \sqrt{1 - \overline{\alpha_t}}\epsilon 
+$$
+
+<p align="justify">
+    When the noise schedule is an increasing sequence $\{\beta_i\}_i^T$
+    then its easy to figure out that the conditional $q(x_t|x_0)=\mathcal{N}(x_t|\sqrt{\overline{\alpha_t}}x_0, (1 - \overline{\alpha_t})I)$ 
+    converges to $\mathcal{N}(0, I)$ as $T \to \infty$.
+    This validates our choice of prior as the standard Normal distribution.
+</p>
+</p></p></p></p></p></p>
 
   </div>
 
