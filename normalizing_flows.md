@@ -63,13 +63,13 @@ $$
 mu = 0
 sigma = 0.5
 rng = np.random.default_rng(seed=seed)
-bins = 50
+num_bins = 50
 samples = 1000
 
 # I use a normal distribution for p0
 x0_samples = rng.normal(mu, sigma, size=(samples, 1))
 plt.figure(figsize=(5, 3))
-plt.hist(x0_samples, bins=bins, label='Empirical p0 dist')
+plt.hist(x0_samples, bins=num_bins, label='Empirical p0 dist')
 plt.legend()
 plt.show()
 
@@ -81,7 +81,7 @@ df_invdx = lambda x : 1/x # 0.5*(x**(-0.5))
 # Generating transformed samples
 x1_samples = f(x0_samples)
 plt.figure(figsize=(5, 3))
-count, bins, ignored = plt.hist(x1_samples, bins=bins, label='Empirical p1 dist')
+count, p1_bins, ignored = plt.hist(x1_samples, bins=num_bins, label='Empirical p1 dist')
 plt.legend()
 plt.show()
 ```
@@ -99,11 +99,11 @@ def logp0(x, mu=0, sigma=1):
   return np.log(1/np.sqrt(2*np.pi*sigma**2)) - ((x - mu)**2)/(2*sigma**2)
 
 plt.figure(figsize=(5, 3))
-plt.hist(x1_samples, bins=bins, density=True, alpha=0.6, color='skyblue', label='Empirical p1 dist')
+plt.hist(x1_samples, bins=num_bins, density=True, alpha=0.6, color='skyblue', label='Empirical p1 dist')
 # Plot theoretical PDF using Change of Variables
-x1_range = np.linspace(0.1, np.max(bins), samples)
-p1 = p0(f_inv(x1_range), mu, sigma) * np.abs(df_invdx(x1_range))
-plt.plot(x1_range, p1, 'r-', lw=2, label='Theoretical (Change of Variables)')
+plot_range = np.linspace(0.1, np.max(p1_bins), samples)
+p1 = p0(f_inv(plot_range), mu, sigma) * np.abs(df_invdx(plot_range))
+plt.plot(plot_range, p1, 'r-', lw=2, label='Theoretical (Change of Variables)')
 plt.legend()
 ```
 
@@ -141,7 +141,7 @@ $$
 $$
 
 $$
-  p_{k}(x_{k}) = p_{\rm{prior}}(x_{0}) \prod_{i=1}^{L-1} | \det \frac{\partial f_{k}(x_{k})}{\partial x_{k}}|^{-1}
+  p_{k}(x_{k}) = p_{\rm{prior}}(x_{0}) \prod_{i=0}^{L-1} | \det \frac{\partial f_{k}(x_{k})}{\partial x_{k}}|^{-1}
 $$
 
 $$
@@ -157,16 +157,16 @@ $$
 # Example of multiple bijections
 x2_samples = f(x1_samples)
 plt.figure(figsize=(5, 3))
-count, bins, ignored = plt.hist(x2_samples, bins=bins, label='Empirical p2 dist')
+count, p2_bins, ignored = plt.hist(x2_samples, bins=num_bins, label='Empirical p2 dist')
 plt.legend()
 plt.show()
 
 plt.figure(figsize=(5, 3))
-plt.hist(x2_samples, bins=bins, density=True, alpha=0.6, color='skyblue', label='Empirical p2 dist')
+plt.hist(x2_samples, bins=num_bins, density=True, alpha=0.6, color='skyblue', label='Empirical p2 dist')
 # Plot theoretical PDF using Change of Variables
-x2_range = np.linspace(0.1, np.max(bins), samples)
-p2 = p1 * np.abs(df_invdx(x2_range))
-plt.plot(x2_range, p1, 'r-', lw=2, label='Theoretical (Change of Variables)')
+plot_range = np.linspace(0.1, np.max(p2_bins), samples)
+p2 = p0(f_inv(plot_range), mu, sigma) * np.abs(df_invdx(plot_range)) * np.abs(df_invdx(plot_range))
+plt.plot(plot_range, p2, 'b-', lw=2, label='Theoretical (Change of Variables)')
 plt.legend()
 ```
 
