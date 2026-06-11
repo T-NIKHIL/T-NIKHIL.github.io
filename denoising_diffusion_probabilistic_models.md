@@ -47,29 +47,28 @@ show_excerpts: true
 </p>
 
 $$
-  p_{\theta}(x) = \int p_{\theta}(x, z) dz = \int p_{\theta}(x|z) p_{\theta}(z) dz
+  p_{\text{data}}(x) = \int p_{\theta}(x, z) dz = \int p_{\theta}(x|z) p_{\theta}(z) dz
 $$
 
 <p align='justify'>
     However in practice this never works out because the
     integral is intractable (does not have a closed form expression and cannot be computed numerically).
     The problem arises because we typically do not have
-    access to the likelihood $p_{\theta}(x|z)$.
-    Even if did somehow manage to learn this model, 
-    it would likely be complex, still leading to an intractable calculation.
+    access to the likelihood $p_{\theta}(x|z)$ and
+    even if did somehow manage to learn a likelihood model, 
+    it would likely be complex (pun intended), still leading to an intractable calculation.
 </p>
 
 <p align='justify'>
-    Kigma and Welling came up with a solution to these problems 
-    by approximating the true posterior $p_{\theta}(z|x)$ with an 
+    Kigma and Welling came up with a solution to the problem
+    of learning the likelihood function 
+    by approximating the true posterior with an 
     approximate $q_{\phi}(z|x)$ modelled using a neural network. 
-    In the paper, the authors refer to this neural network as a probabilitic encoder 
-    since given a datapoint $x$, the encoder produces a distribution over the values
-    of $z$ from which $x$ could have been generated. 
+    In the paper, the authors refer to this neural network as a probabilistic encoder.
     Similarly given a $z$ we would like to know the distribution over the 
     corresponding $x$ values. 
-    This is done by another neural network which the authors refer to as a 
-    probabilistic decoder. 
+    This is done using the neural network parametrizing the likelihood $p_{\theta}(x|z)$
+    which they refer to as a probabilistic decoder. 
 </p>
 
 <div style="text-align: center;">
@@ -81,7 +80,7 @@ $$
     $q_\phi(z|x)$ is modelled as multivariate
     Gaussian distribution and the probabilistic encoder
     predicts the mean and standard deviation of this distribution.
-    Similarly, $q_{\phi}(x|z)$ is also modelled as a
+    Similarly, $p_{\theta}(x|z)$ is also modelled as a
     multivariate Gaussian distribution but with fixed variance $\sigma^2$.
     The <a href="https://en.wikipedia.org/wiki/Reparameterization_trick">reparametrization technique</a> 
     uses the predicted mean and standard deviation to
@@ -95,7 +94,7 @@ $$
     from the desired data distribution $p_{\text{data}}$.
 </p>
 
-<b>How do we train the probabilistic encoders and decoders ?</b>
+<b>How to train the probabilistic encoders and decoders ?</b>
 
 <p align='justify'>
     Looking back at the marginal likelihood expression we can 
@@ -187,21 +186,21 @@ $$
     Is there a simpler approach to estimate $p_{\text{data}}$ ?
 </p>
 
-<h5 id="Sec1"><b> Denoising Diffusion Probabilistic Model (DDPM)</b></h5>
+<h4 id="DDPM"><b> Denoising Diffusion Probabilistic Model (DDPM)</b></h4>
 
 <p align="justify">
-    Like in VAEs, diffusion probabilistic models (or simply diffusion models) 
-    use neural networks to approximate the conditional
-    distributions ($p_\theta(x|z)$ and $p_\theta(z|x)$) 
-    but the <b>crucial difference is that instead 
-    of just 1 intermediate random variable $z$, 
-    diffusion models have $T$ random variables $x_{0:T} = {x_0, x_1 \dots x_T}$
-    all with the same dimensionality.</b>
+    We saw that VAEs operate based on an intermediate
+    random variable $z$.
+    Diffusion probabilistic models (or simply diffusion models)
+    also operate based on intermediate variables
+    but instead of just 1, they have 
+    $T$ random variables $x_{0:T} = {x_0, x_1 \dots x_T}$
+    all with the same dimensionality.
     The insight is that by having multiple random variables
     we can chain the transition densities 
     ($p_\theta(x_{t-1}|x_t)$ and $p_\theta(x_t|x_{t-1})$) to form a
     <a href="https://en.wikipedia.org/wiki/Markov_chain">Markov chain</a>
-    that we can use to sample from any complex distribution.
+    that we can use to sample from our desired distribution starting from any starting distribution.
     Does this ring a bell ? 
     This is exactly what 
     <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">Markov Chain Monte Carlo</a> does !
@@ -213,26 +212,34 @@ $$
     distributions which take the corrupted data samples as input and 
     progressively denoise them for a set number of transitions until (hopefully!) 
     we get samples resembling that from the desired data distribution.
-    All this sounded like latin to me when I first glanced over
-    the paper until I pulled up my sleeves and started to really 
-    understand what was going on in the math. 
-<p>
+</p>
+
+<!-- <p align='justify'>
+    The intention of this blog is to make it easier for 
+    anyone trying to understand how a DDPM model works 
+    as the original DDPM paper is difficult to parse for
+    an untrained eye.
+    Without any further delay lets dive straight into how 
+    to train a DDPM.
+<p> -->
 
 <div style="text-align: center;">
     <img src="/assets/blogs/denoising_diffusion_probabilistic_models/DDPM.pdf" alt="Forward and Reverse Markov Processes of DDPM" width="650" height="100">
     <figcaption> Figure 2. Forward and Reverse Markov Processes in the Denoising Diffusion Probabilistic Model </figcaption>
 </div>
 
+<h6 id="DDPM-training"><b>How to train the neural networks in the forward and reverse Markov chains of the DDPM ?</b></h6>
+
 <p align='justify'>
     We start with a few clean data samples $x_0$
     for which we would like to estimate 
     the density $p_{\theta}(x_0)$. 
-    We train the diffusion models to maximize the likelihood
+    We train the diffusion model to maximize the likelihood
     that the samples it produces belong to this 
     data distribution. 
-    <b>How can we frame this into an objective function
-    that we can minimize via Gradient Descent ?</b>
-    We start with the marginal likelihood equation
+    To frame this into an objective function
+    that we can minimize via Gradient Descent,
+    we again start with the marginal likelihood equation
     just as we did in the VAE case.
     The difference here though is that the
     joint distribution comprises of $T$ random variables
@@ -256,7 +263,7 @@ $$
 <p align='justify'>
     The authors in the <a href="https://arxiv.org/abs/2006.11239">paper</a>
     use a fixed forward Markov chain which simplifies the loss calculation
-    so lets stick with that. I rewrite $p_{\theta}(x_t|x_{t-1})$ as $q(x_{1:T}|x_0)$
+    so lets stick with that. I rewrite $p_{\theta}(x_{1:T}|x_0)$ as $q(x_{1:T}|x_0)$
     to indicate that there are no learnable parameters.
 </p>
 
@@ -311,7 +318,7 @@ $$
     <b>We don't have access to the marginals $q(x_t)$ and $q(x_{t-1})$.</b>
     This is where we come across another crucial insight 
     that led to the development of DDPM models which is
-    <b>What if rewrite Bayes theorem by conditioning the probability densities based on clean data $x_0$?</b>
+    <b> conditioning the probability densities based on clean data $x_0$</b>.
     Then we see that the intractable formula becomes mathematically tractable.
 </p>
 
@@ -324,14 +331,15 @@ $$
     the forward transition processes depend only on the previous state
     $q(x_{t}|x_{t-1}, x_0) = q(x_{t}|x_{t-1})$ and the Gaussian nature of all 
     distributions involved. As a result $q(x_{t-1}|x_{t}, x_0)$ is also Gaussian
-    and admits a closed form expression (we will get to this later).
+    and admits a closed form expression (See Section 
+    <a href="#DDPM-sampling2">Sampling from $q(x_{t-1}|x_t, x_0)$</a>).
     This subtle change makes the previously intractable KL Divergence term 
-    into a tractable one. <b>The main point to note here without going into
-    the derivation is that minimizing the KL divergence between
+    into a tractable one. <b>The main point to note here, without going into
+    the derivation, is that minimizing the KL divergence between
     marginal distributions is mathematically identical to minimizing the KL
     divergence between specific conditional distributions.</b>
     Now substituting the probability densities conditioned on clean data $x_0$
-    and expanding out a couple of terms we get 
+    and expanding out the terms we get 
 </p>
 
 $$
@@ -356,21 +364,24 @@ $$
     which the authors break down into 3 terms $L_T$, $L_{t-1}$ and $L_0$.
     The authors were able to simplify this objective function even
     further but we will get to that later.
-    Right now lets appreciate the fact that since all the
+    Right now lets appreciate the fact that <b>since all the
     KL Divergence terms are comparisons between Gaussians,
     they can be computed efficiently without having to rely
-    on high variance Monte Carlo estimates.
+    on high variance Monte Carlo estimates</b>.
 </p>
 
-<b>Forward Markov Chain</b>
+
+<h6 id="DDPM-sampling1"><b> Sampling from $q(x_t|x_{t-1})$</b></h6>
 
 <p align='justify'>
     The transition densities in the forward chain
-    are defined according to a variance schedule
-    $\beta_1, \beta_2 \dots \beta_T$ which can be 
-    defined a priori or kept as learnable parameters.
-    The authors in the <a href="https://arxiv.org/abs/2006.11239">DDPM paper</a>
-    use a fixed forward Markov chain which simplifies the loss calculation.
+    are defined such that the random variable
+    $x_t$ depends on scaled amounts of $x_{t-1}$ and 
+    Gaussian noise.
+    This scaling is controlled by the variance $\beta_t$
+    which is defined a priori through a
+    variance schedule
+    $\beta_1, \beta_2 \dots \beta_T$.
 </p>
 
 $$
@@ -378,8 +389,8 @@ $$
 $$
 
 <p align='justify'>
-    Using the reparametrization technique we can 
-    sample from $q(x_t | x_{t-1})$ as
+    Again we can use the reparametrization technique 
+    to sample from this distribution.
 </p>
 
 $$
@@ -387,13 +398,10 @@ $$
 $$
 
 <p align='justify'>
-    We see the new random variable $x_t$ is
-    essentially the sum of scaled down $x_{t-1}$ and
-    controlled amount of Guassian noise.
-    Lets derive what the reparametrization would like 
-    if we are interested to $x_t$ starting from $x_0$.
-    To start lets look at the equation for sampling $x_{t-1}$
-    and lets define a new variable $\alpha_t = 1 - \beta_t$. 
+    <b>What would the reparametrization formula
+    look like for sampling from $q(x_t|x_0)$ ?</b>
+    To start lets look at the equation for sampling $x_{t-1}$.
+    Lets also define a new variable $\alpha_t = 1 - \beta_t$. 
 </p>
 
 $$
@@ -403,7 +411,7 @@ $$
 $$
 
 <p align='justify'>
-    Substituting this in $x_t$ we get
+    Substituting this in $x_t$ we get 
 <p>
 
 $$
@@ -450,8 +458,118 @@ $$
 $$
 
 <p align='justify'>
+    This completes the derivation.
     When the noise schedule is an increasing sequence $\{\beta_i\}_i^T$
-    then its easy to figure out that the conditional $q(x_t|x_0)=\mathcal{N}(x_t|\sqrt{\overline{\alpha_t}}x_0, (1 - \overline{\alpha_t})I)$ 
+    then its easy to figure out that $q(x_t|x_0)=\mathcal{N}(x_t|\sqrt{\overline{\alpha_t}}x_0, (1 - \overline{\alpha_t})I)$ 
     converges to $\mathcal{N}(0, I)$ as $T \to \infty$.
-    This validates our choice of prior as the standard Normal distribution.
+    Thus validating our choice of prior as the standard Normal distribution.
 </p>
+
+<h6 id="DDPM-sampling2"><b> Sampling from $q(x_{t-1}|x_{t}, x_0)$</b></h6>
+
+<p align='justify'>
+    Lets now turn our attention to deriving the
+    reparametrization formula for sampling from
+    $q(x_{t-1}|x_t, x_0)$. This distribution as
+    mentioned previously takes the form of a
+    multivariate Gaussian distribution with
+    a mean function $\tilde\mu_t(x_t, x_0)$ 
+    and variance $\tilde\beta_t$. 
+</p>
+
+$$
+    \begin{align}
+    q(x_{t-1}|x_t, x_0) &= \mathcal{N}(x_{t-1}|\tilde\mu_t(x_t, x_0), \tilde\beta_tI) \\
+    q(x_{t-1}|x_t, x_0) &\propto \exp \left[ -\frac{1}{2} \frac{(x_{t-1} - \tilde\mu_t(x_t, x_0))^2}{\tilde\beta_t} \right] \\
+    \end{align}
+$$
+
+<p align='justify'>
+    To derive what $\tilde\mu_t(x_t, x_0)$ and $\tilde\beta_t$
+    should be, lets look back at the 
+    Bayes theorem on conditioned probability
+    distributions.
+</p>
+
+$$
+    q(x_{t-1}|x_{t}, x_0) = q(x_{t}|x_{t-1}) \frac{q(x_{t-1}| x_0)}{q(x_{t}| x_0)}
+$$
+
+<p align='justify'>
+    We already know what all the distributions on 
+    the right hand side look like.
+</p>
+
+$$
+    \begin{align}
+        q(x_t|x_{t-1}) &\propto \exp \left[-\frac{1}{2} \frac{(x_t - \sqrt{\alpha_t}x_{t-1})^2}{(1-\alpha_t)} \right] \\
+        q(x_{t-1}|x_{0}) &\propto \exp \left[-\frac{1}{2} \frac{(x_{t-1} - \sqrt{\overline{\alpha}_{t-1}}x_0)^2}{(1-\overline{\alpha}_{t-1})} \right] \\
+        q(x_t|x_{0}) &\propto \exp \left[-\frac{1}{2} \frac{(x_t - \sqrt{\overline{\alpha}_t}x_0)^2}{(1-\overline{\alpha}_{t})} \right] \\
+    \end{align}
+$$
+
+<p align='justify'>
+    Substituting these back in the Bayes formula and expanding out the terms we get
+</p>
+
+$$
+    \begin{align}
+        q(x_{t-1}|x_{t}, x_0) &\propto \exp [-\frac{1}{2} (  \frac{x_t^2}{(1-\alpha_t)} - \frac{2x_t\sqrt{\alpha_t}x_{t-1}}{(1-\alpha_t)} + \frac{\alpha_t x_{t-1}^2}{(1-\alpha_t)} \\
+                              &\quad \quad \quad \quad + \frac{x_{t-1}^2}{(1-\overline{\alpha}_{t-1})} - \frac{2x_{t-1}\sqrt{\overline{\alpha}_{t-1}}x_{0}}{(1-\overline{\alpha}_{t-1})} + \frac{\overline{\alpha}_{t-1} x_{0}^2}{(1-\overline{\alpha}_{t-1})} \\
+                              &\quad \quad \quad \quad + \frac{x_t^2}{(1-\overline{\alpha}_t)} - \frac{2x_t\sqrt{\overline{\alpha}_t}x_{0}}{(1-\overline{\alpha}_t)} + \frac{\overline{\alpha}_t x_{0}^2}{(1-\overline{\alpha}_t)} ) ]
+    \end{align}
+$$
+
+<p align='justify'>
+    Expanding out the terms in $q(x_{t-1}|x_t, x_0)$ and
+    comparing with what we have above, 
+    we directly get the equations for the mean and
+    variance.
+</p>
+
+$$
+    \begin{align}
+        \frac{1}{\tilde\beta_t} &= \frac{\alpha_t}{1 - \alpha_t} + \frac{1}{1 - \overline{\alpha}_{t-1}} \\
+        \frac{1}{\tilde\beta_t} &= \frac{\alpha_t(1 - \overline{\alpha}_{t-1}) + (1 - \alpha_t)}{(1 - \alpha_t)(1 - \overline{\alpha}_{t-1})} \\
+        \frac{1}{\tilde\beta_t} &= \frac{1 - \overline{\alpha}_t}{(1 - \alpha_t)(1 - \overline{\alpha}_{t-1})} \\
+        \tilde\beta_t &= \frac{(1 - \overline{\alpha}_{t-1})}{1 - \overline{\alpha}_t}\beta_t
+    \end{align}
+$$
+
+$$
+    \begin{align}
+        \frac{\tilde\mu_t(x_t, x_0)}{\tilde\beta_t} &= \frac{x_t\sqrt{\alpha_t}}{(1-\alpha_t)} + \frac{\sqrt{\overline{\alpha}_{t-1}}x_{0}}{(1-\overline{\alpha}_{t-1})} \\
+        \tilde\mu_t(x_t, x_0) &= \frac{\sqrt{\overline{\alpha}_{t-1}}x_{0}}{(1-\overline{\alpha}_{t-1})}\tilde\beta_t + \frac{x_t\sqrt{\alpha_t}}{(1-\alpha_t)}\tilde\beta_t \\
+        \tilde\mu_t(x_t, x_0) &= \frac{\sqrt{\overline{\alpha}_{t-1}}x_{0}}{\cancel{(1-\overline{\alpha}_{t-1})}} \frac{\cancel{(1 - \overline{\alpha}_{t-1})}}{1 - \overline{\alpha}_t}\beta_t + \frac{x_t\sqrt{\alpha_t}}{\cancel{(1-\alpha_t)}} \frac{(1 - \overline{\alpha}_{t-1})}{1 - \overline{\alpha}_t}\cancel{\beta_t} \\
+        \tilde\mu_t(x_t, x_0) &= \frac{\sqrt{\overline{\alpha}_{t-1}}\beta_t}{1 - \overline{\alpha}_t}x_0 + \frac{\sqrt{\alpha_t}(1 - \overline{\alpha}_{t-1})}{1 - \overline{\alpha}_t}x_t
+    \end{align}
+$$
+
+<p align='justify'>
+    Thus we finally arrive at the reparametrization equation for sampling $x_{t-1}$
+    from $q(x_{t-1}|x_t, x_0)$
+</p>
+
+$$
+    \begin{align}
+    x_{t-1} &= \tilde\mu_t(x_t, x_0) + \sqrt{\tilde\beta_t} \epsilon \quad \epsilon \sim \mathcal{N}(0, I) \\
+    x_{t-1} &= \frac{\sqrt{\overline{\alpha}_{t-1}}\beta_t}{1 - \overline{\alpha}_t}x_0 + \frac{\sqrt{\alpha_t}(1 - \overline{\alpha}_{t-1})}{1 - \overline{\alpha}_t}x_t + \sqrt{\frac{(1 - \overline{\alpha}_{t-1})}{1 - \overline{\alpha}_t}\beta_t} \epsilon \\
+    \end{align}
+$$
+
+<p align='justify'>
+    However, we can simplify this even further by substituting for $x_0$ 
+    using the forward sampling equation $x_t = \sqrt{\overline{\alpha}_t}x_0 + \sqrt{1 - \overline{\alpha}_t}\epsilon$
+    so that we get an equation only in $x_t$
+</p>
+
+$$
+    x_0 = \frac{x_t}{\sqrt{\overline{\alpha}_t}} - \frac{\sqrt{1 - \overline{\alpha}_t}}{\sqrt{\overline{\alpha}_t}}\epsilon
+$$
+
+$$
+    \begin{align}
+        x_{t-1} &= \frac{\sqrt{\overline{\alpha}_{t-1}}\beta_t}{1 - \overline{\alpha}_t} \left( \frac{x_t}{\sqrt{\overline{\alpha}_t}} - \frac{\sqrt{1 - \overline{\alpha}_t}}{\sqrt{\overline{\alpha}_t}}\epsilon \right) + \frac{\sqrt{\alpha_t}(1 - \overline{\alpha}_{t-1})}{1 - \overline{\alpha}_t}x_t + \sqrt{\frac{(1 - \overline{\alpha}_{t-1})}{1 - \overline{\alpha}_t}\beta_t} \epsilon \\
+        x_{t-1} &= \underbrace{\frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \overline{\alpha}_t}}\epsilon \right)}_{\tilde\mu_t(x_t, x_0)} + \sigma_t \epsilon
+    \end{align}
+$$
