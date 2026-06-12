@@ -56,19 +56,19 @@ $$
     The problem arises because we typically do not have
     access to the likelihood $p_{\theta}(x|z)$ and
     even if did somehow manage to learn a likelihood model, 
-    it would likely be complex (pun intended), still leading to an intractable calculation.
+    it would likely be complex, still leading to an intractable calculation.
 </p>
 
 <p align='justify'>
-    Kigma and Welling came up with a solution to the problem
+    Kingma and Welling came up with a solution to the problem
     of learning the likelihood function 
-    by approximating the true posterior with an 
-    approximate $q_{\phi}(z|x)$ modelled using a neural network. 
+    by first training a neural network to approximate the
+    true posterior.
     In the paper, the authors refer to this neural network as a probabilistic encoder.
-    Similarly given a $z$ we would like to know the distribution over the 
-    corresponding $x$ values. 
-    This is done using the neural network parametrizing the likelihood $p_{\theta}(x|z)$
-    which they refer to as a probabilistic decoder. 
+    Using the $z$ variables sampled from the approximate posterior $q_{\phi}(z|x)$,
+    another neural network parametrizing the likelihood $p_{\theta}(x|z)$
+    learns to transform these variables back to the $x$ space. 
+    This neural network is referred to as a probabilistic decoder. 
 </p>
 
 <div style="text-align: center;">
@@ -83,7 +83,7 @@ $$
     Similarly, $p_{\theta}(x|z)$ is also modelled as a
     multivariate Gaussian distribution but with fixed variance $\sigma^2$.
     The <a href="https://en.wikipedia.org/wiki/Reparameterization_trick">reparametrization technique</a> 
-    uses the predicted mean and standard deviation to
+    uses the predicted mean and standard deviation of $q_\phi(z|x)$ to
     generate samples of $z$ from the probabilistic encoder. 
     This clever use of the reparametrization technique also solves the issue
     of how to backpropagate errors for updating the
@@ -127,7 +127,7 @@ $$
     of the evidence (or) data distribution which is why they are typically
     referred to as Evidence Lower Bound (ELBO).
     Voilà ! We found a clever solution to train the probabilistic encoders
-    and decoders to maximize the likelihood that the samples they 
+    and decoders to maximize the likelihood the samples they 
     generate belong to $p_{\text{data}}(x)$.
     All we have to do is maximize the ELBO !
     However in machine learning since we are used to minimizing objective
@@ -148,7 +148,7 @@ $$
 </p>
 
 $$
-    \mathcal{L}_{\text{ELBO}} = \frac{1}{2\sigma^2}\mathbb{E}_{q_{\phi}(z|x)} \left[(x - \mu_\phi(z))^2 \right] + \frac{1}{2}\sum_{i=1}^k \left[ \sigma_i^2 + \mu_i^2 -1 - \log \sigma_i^2 \right]
+    \mathcal{L}_{\text{ELBO}} = \frac{-1}{2\sigma^2}\mathbb{E}_{q_{\phi}(z|x)} \left[(x - \mu_\phi(z))^2 \right] + \frac{1}{2}\sum_{i=1}^k \left[ \sigma_i^2 + \mu_i^2 -1 - \log \sigma_i^2 \right]
 $$
 
 <p align='justify'>
@@ -168,8 +168,8 @@ $$
     When $z$ is sampled from this overlapping region,
     the probabilistic decoder is generating an averaged 
     sample over multiple unrelated inputs. 
-    A similar effect also plays out in case of Generative Adversarial Networks (GANs)
-    called as <a href="https://en.wikipedia.org/wiki/Mode_collapse"><b>mode collapse</b></a> where the GAN is unable
+    In case of Generative Adversarial Networks (GANs)
+    an effect called <a href="https://en.wikipedia.org/wiki/Mode_collapse"><b>mode collapse</b></a> occurs where the GAN is unable
     to learn the different modes in $p_{\text{data}}$ leading
     to repetitive or poor diversity in generated samples 
     (Note to self : Maybe a discussion point in another blog ...)
@@ -200,7 +200,8 @@ $$
     we can chain the transition densities 
     ($p_\theta(x_{t-1}|x_t)$ and $p_\theta(x_t|x_{t-1})$) to form a
     <a href="https://en.wikipedia.org/wiki/Markov_chain">Markov chain</a>
-    that we can use to sample from our desired distribution starting from any starting distribution.
+    that we can use to transform samples from any starting distribution
+    to any desired data distribution no matter how complex it might be. 
     Does this ring a bell ? 
     This is exactly what 
     <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">Markov Chain Monte Carlo</a> does !
@@ -283,9 +284,8 @@ $$
 $$
 
 <p align='justify'>
-    Since the optimization algorithms in most machine learning packages are coded for minimizing
-    objective functions, we multiply both sides of the equation by $-1$ 
-    and reframe the optimization as minimizing the variational bound.
+    We multiply both sides of the equation by $-1$ 
+    to reframe the optimization as minimizing the variational bound.
 </p>
 
 $$
@@ -366,7 +366,8 @@ $$
     further but we will get to that later.
     Right now lets appreciate the fact that <b>since all the
     KL Divergence terms are comparisons between Gaussians,
-    they can be computed efficiently without having to rely
+    we can derive analytic closed form expressions 
+    without having to rely
     on high variance Monte Carlo estimates</b>.
 </p>
 
@@ -570,6 +571,115 @@ $$
 $$
     \begin{align}
         x_{t-1} &= \frac{\sqrt{\overline{\alpha}_{t-1}}\beta_t}{1 - \overline{\alpha}_t} \left( \frac{x_t}{\sqrt{\overline{\alpha}_t}} - \frac{\sqrt{1 - \overline{\alpha}_t}}{\sqrt{\overline{\alpha}_t}}\epsilon \right) + \frac{\sqrt{\alpha_t}(1 - \overline{\alpha}_{t-1})}{1 - \overline{\alpha}_t}x_t + \sqrt{\frac{(1 - \overline{\alpha}_{t-1})}{1 - \overline{\alpha}_t}\beta_t} \epsilon \\
-        x_{t-1} &= \underbrace{\frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \overline{\alpha}_t}}\epsilon \right)}_{\tilde\mu_t(x_t, x_0)} + \sigma_t \epsilon
+        x_{t-1} &= \underbrace{\frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \overline{\alpha}_t}}\epsilon \right)}_{\tilde\mu_t(x_t, \epsilon)} + \sqrt{\frac{(1 - \overline{\alpha}_{t-1})}{1 - \overline{\alpha}_t}\beta_t} \epsilon
     \end{align}
 $$
+
+<h6 id="simplified_obj"><b> Simplifying the training objective</b></h6>
+
+<p align='justify'>
+    Looking back at our original optimization function
+    we see that the $L_T$ term is a constant as there are no
+    learnable parameters. To compute the $L_{t-1}$ term we first
+    define $p_{\theta}(x_{t-1}|x_{t})$ as 
+    $\mathcal{N}(x_{t-1}|\mu_\theta(x_t, t), \sum_{\theta}(x_t, t))$. 
+    The authors set $\sum_{\theta}(x_t, t) = \sigma_t^2I$ and 
+    tested using $\sigma_t^2 = \beta_t$ and
+    $\sigma_t^2 = \tilde \beta_t$. They found both
+    options produced similar results. 
+</p>
+
+$$
+    \begin{align}
+        L_{t-1} &= \mathbb{E}_{q} \left[ \log \frac{q(x_{t-1}|x_t, x_0)}{p_{\theta}(x_{t-1}|x_{t})} \right] \\
+        L_{t-1} &= \mathbb{E}_{q} \left[ \log \frac{\exp \frac{-(x_{t-1} - \tilde\mu(x_t, x_0))^2}{2\sigma_t^2}}{\exp \frac{-(x_{t-1} - \mu_{\theta}(x_t, t))^2}{2\sigma_t^2}} \right] \\
+        L_{t-1} &= \mathbb{E}_{q} \left[ \frac{- (x_{t-1} - \tilde\mu(x_t, x_0))^2 + (x_{t-1} - \mu_{\theta}(x_t, t))^2}{2\sigma_t^2} \right] \\
+        L_{t-1} &= \mathbb{E}_{q} \left[ \frac{|| \tilde\mu(x_t, x_0) - \mu_{\theta}(x_t, t)||^2}{2\sigma_t^2} \right] + C
+    \end{align}
+$$
+
+<p align='justify'>
+    $C$ is a constant that does not depend on $\theta$. 
+    Since we derived what $\tilde\mu(x_t, \epsilon)$ is
+    we can substitute into the above equation. 
+</p>
+
+$$
+    \begin{align}
+        L_{t-1} - C &= \mathbb{E}_{q} \left[ \frac{1}{2\sigma_t^2} \left|\left| \frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \overline{\alpha}_t}}\epsilon \right) -  \mu_{\theta}(x_t, t) \right|\right|^2 \right]
+    \end{align}
+$$
+
+<p align='justify'>
+    For the above objective function to be minimized then
+</p>
+
+$$
+    \mu_{\theta}(x_t, t) = \tilde\mu(x_t, x_0) = \tilde\mu(x_t, \epsilon)
+$$
+
+<p align='justify'>
+    From here we observe that $\mu_{\theta}(x_t, t)$ must have a similar functional form
+    as $\tilde\mu(x_t, \epsilon)$.
+</p>
+
+$$
+    \mu_{\theta}(x_t, t) = \frac{1}{\sqrt{\alpha_t}} \left[ x_t - \frac{\beta_t}{\sqrt{1 - \overline{\alpha}_t}}\epsilon_{\theta}(x_t, t) \right]
+$$
+
+<p align='justify'>
+    <b>$\epsilon_{\theta}(x_t, t)$ is called the learned gradient of the data density or score.</b>
+    Substituting these derivations back into $L_{t-1} - C$ we get a very interesting objective function
+    that resembles <b>denoising score matching over multiple noise levels (small to large) indexed by $t$</b>.
+</p>
+
+$$
+    L_{t-1} - C = \mathbb{E}_{q} \left[ \frac{\beta_t^2}{2\sigma_t^2 \alpha_t (1 - \overline{\alpha}_t)} \left|\left| \epsilon - \epsilon_{\theta}(x_t, t) \right|\right|^2 \right]
+$$
+
+<p align='justify'>
+    We only need to train a neural network to predict $\epsilon$.
+    Then using the predicted noise we can sample the denoised random variable
+    $x_{t-1}$ from $p_{\theta}(x_{t-1}|x_t)$ 
+    through $x_{t-1} = \frac{1}{\sqrt{\alpha_t}}\left(x_t - \frac{\beta_t}{\sqrt{1 - \overline{\alpha}_t}}\epsilon_{\theta}(x_t, t)\right) + \sigma_tz$
+    where $z \sim \mathcal{N}(0, 1)$
+</p>
+
+<p align='justify'>
+    We see that an alternative optimization could have
+    been defined that predicts the clean data $x_0$ since
+    $\mu_{\theta}(x_t, t) = \tilde\mu(x_t, x_0) = \tilde\mu(x_t, \epsilon)$
+    but the authors found that this leads to poor sample quality.
+    As quoted in the paper <i>" $\epsilon$ prediction parametrization
+    both resembles Langevin dynamics and simplifies the diffusion model's
+    variational bound to an objective that resembles denoising score matching."</i>
+</p>
+
+<p align='justify'>
+    Simplifying the $L_T$, $L_{t-1}$ and $L_0$ the authors arrived at the 
+    following variant of the variational bound $L_{\text{simple}}(\theta)$ 
+    which is much simpler to train.
+</p>
+
+$$
+    \mathcal{L}_{\text{simple}}(\theta) = \underbrace{\mathbb{E}_{t, x_0, \epsilon}}_{\text{average over} \epsilon \text{predict at diff. $t$ and  diff. $x_0$}} \left[ \left|\left| \epsilon - \epsilon_{\theta}(x_t, t) \right|\right|^2 \right]
+$$
+
+<p align='justify'>
+    The $t=T$ case is ignored because it has a constant loss.
+    The $1 < t < T$ case is the denoising score matching but
+    the unweighted version compared to what we saw from $L_{t-1}$.
+    This results in down weighting terms corresponding to small $t$
+    causing model to focus more on the early stages of denoising. 
+    The $t=1$ corresponds to $L_0$ which is approximated by 
+    a Guassian probability density function times the bin width,
+    ignoring $\sigma_1^2$ and edge effects. 
+    The snippet below summarizes the training and sampling
+    process in a DDPM.
+</p>
+
+<div style="text-align: center;">
+    <img src="/assets/blogs/denoising_diffusion_probabilistic_models/training_and_sampling.pdf" alt="Training and Sampling of DDPM" width="500" height="130">
+    <figcaption> Figure 2. Training and Sampling in DDPM </figcaption>
+</div>
+
