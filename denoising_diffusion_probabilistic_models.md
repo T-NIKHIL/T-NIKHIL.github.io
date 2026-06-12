@@ -683,3 +683,33 @@ $$
     <figcaption> Figure 2. Training and Sampling in DDPM </figcaption>
 </div>
 
+<p align='justify'>
+    This is all I have for now. 
+    If you never heard about a DDPM,
+    I atleast hope you learned why these models are so popular
+    ranging from uses in image generation to predicting 3D biomolecular
+    structures just from sequence (AlphaFold3).
+    If you have experience working with these models
+    but never quite understood the math, 
+    I hope this blog helped you get a new perspective on the
+    DDPM paper.
+    In the future I plan to put this
+    math in action and illustrate it using
+    a simple example. 
+</p>
+
+<script src="https://giscus.app/client.js"
+        data-repo="T-NIKHIL/T-NIKHIL.github.io"
+        data-repo-id="R_kgDOMMGitw"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOMMGit84C7ixL"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="light_high_contrast"
+        data-lang="en"
+        crossorigin="anonymous"
+        async>
+</script>
