@@ -553,7 +553,7 @@ appropriate dimensionality and then passed onto the
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">TriangleAttentionStartingNode</span><span class="p">({</span><span class="n">zij</span><span class="p">},</span> <span class="n">c</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">Nhead</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
     <span class="c1"># Normalize the inputs
-</span>    <span class="n">zij</span> <span class="err">←</span> <span class="nc">LayerNorm</span><span class="p">(</span><span class="n">zij</span><span class="p">)</span>
+</span>    <span class="n">zij</span> <span class="err">←</span> <span class="nc">LayerNorm</span><span class="p">(</span><span class="n">zij</span><span class="p">)</span><span class="n">gem</span>
     <span class="n">zik</span> <span class="err">←</span> <span class="nc">LayerNorm</span><span class="p">(</span><span class="n">zik</span><span class="p">)</span>
     <span class="n">zjk</span> <span class="err">←</span> <span class="nc">LayerNorm</span><span class="p">(</span><span class="n">zjk</span><span class="p">)</span>
     <span class="c1"># Projecting zij into the query, key and value space using 3 linear NN.
@@ -581,32 +581,56 @@ appropriate dimensionality and then passed onto the
 <p align="justify">
     In AF2 the structure module used invariant point attention algorithm.
     This is replaced with a standard 
-    non-equivariant point-cloud diffusion model in AF3.
+    non-equivariant point-cloud 
+    <a href="/denoising_diffusion_probabilistic_models/">diffusion model</a> 
+    in AF3.
+</p>
+
+<p align="justify">
     During training, 48 diffusion modules are trained in parallel.
-    This is efficient since training the diffusion module is much cheaper
-    than training the trunk of AF3.
-    The forward noise process is simulated by randomly rotating and
-    translating the 48 ground truth structures and adding independent gaussian
-    noise sampled from 
-    $$ 
-        \hat t \sim \sigma_{\rm{data}}*\exp(-1.2 + 1.5*N(0, 1)) 
+    This is efficient as the diffusion module is much cheaper
+    to train compared to the trunk of AF3.
+    The prediction of denoised coordinates follows a Langevin type
+    dynamics (Check out sampling from 
+    $q(x_{t-1}|x_t, x_0)$ from my 
+    <a href="/denoising_diffusion_probabilistic_models/">diffusion module blog</a>) 
+    which takes as input the noisy coordinates and
+    the learned gradient of the data density (also called score).
+    To generate noisy coordinates $\overrightarrow x_{l}^{\rm{noisy}}$,
+    the 48 ground truth structures are 
+    randomly rotated and translated, $\overrightarrow x_l$.
+    We also have to add gaussian noise $\overrightarrow \xi_{l}$ 
+    to the permuted coordinates which is sampled as 
     $$
-    The reverse denoising process is a one step denoising process
-    where the module's goal is to predict the noise added to the input.
-    Denoising at low noise puts emphasis on getting the
-    local stereochemistry correct while denoising at high noise
-    puts more emphasis on getting the global structure correct.
+        \overrightarrow \xi_{l} = \lambda \sqrt{\hat t^2 - c_{\tau - 1}^2} . N(\overrightarrow 0, I_{3})
+    $$
+    with $\lambda$ being the noise scale set at 1.003 and $\hat t$ defined as
+    $$
+        \hat t = c_{\tau - 1}(\gamma + 1).
+    $$
+    $c_{\tau - 1}$ is the noise sampled from the schedule
+    $$ 
+        c_{\tau} \sim \sigma_{\rm{data}}*\exp(-1.2 + 1.5*N(0, 1)) 
+    $$
+    during training and $\gamma$ controls amount of conditional noise
+    that is added. If $c_{\tau}$ is greater than $\gamma_{\text{min}}$ 
+    then $\gamma$ is set to a predefined value of 0.8. 
+    If its less then it is set to 0.
+    When the coordinate noise $\overrightarrow \xi_{l}$ is low,
+    the diffusion module is trained to get the
+    local stereochemistry correct while 
+    when $\overrightarrow \xi_{l}$ is high,
+    more emphasis is put on getting the global structure correct.
     Thus without any torsion-based parametrizations and 
     stereochemical losses, just by varying the noise levels,
     AF3 is able to learn these concepts internally.
-    During training, a short/mini rollout is performed where
+    During training, a short/mini rollout is performed for 20 steps where
     the module's predictions are fed back as input to predict 
     a new set of denoised atomic coordinates as depicted in Figure 16.
-    In AF3 this is done for 20 steps while during inference 
-    a longer rollout is performed using 200 steps
-    with noise sampled from
+    During inference a longer rollout is performed for 200 steps
+    with the noise schedule $[c_1, c_2 \dots c_{T}]$ defined as follows 
     $$
-        \hat t \sim \sigma_{\rm{data}}*(s_{\rm{max}}^{\frac{1}{p}} + t*(s_{\rm{min}}^{\frac{1}{p}} - s_{\rm{max}}^{\frac{1}{p}}))^{p}.
+        c_{t} \sim \sigma_{\rm{data}}*(s_{\rm{max}}^{\frac{1}{p}} + t*(s_{\rm{min}}^{\frac{1}{p}} - s_{\rm{max}}^{\frac{1}{p}}))^{p}.
     $$
     $\sigma_{\rm{data}}$ in both the training noise and
     inference noise schedule is set to 16, $p$ is set to 7,
@@ -619,7 +643,7 @@ appropriate dimensionality and then passed onto the
     <figcaption>Figure 16. Diffusion Module during inference.</figcaption>
 </figure>
 
-<p align="justify">
+<!-- <p align='justify'>
     As mentioned above, AF3 uses a noise schedule
     during inference but also applies a conditional noise $\gamma$
     to improve sample diversity as shown in Figure 16. 
@@ -640,12 +664,17 @@ appropriate dimensionality and then passed onto the
     $$
 </p>
 
-<p><b>What does the Diffusion Module predict ?</b></p>
+<b>What does the Diffusion Module predict ?</b>
 
-<p align="justify">
+<p align='justify'>
     Diffusion Module predicts the noise added to the 
     image. 
-</p>
+</p> -->
+
+<p>In the update equation multiplying $dt$ with the score 
+computes the updates to the atomic coordinates.
+$\eta$ acts as a learning rate, controlling the magnitude
+of the coordinate update. In the AF3 paper it is set to 1.5.</p>
 
 <p><b>How does the Diffusion Module work ?</b></p>
 
