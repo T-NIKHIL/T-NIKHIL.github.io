@@ -11,11 +11,12 @@ layout: home
 <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
   <div style="flex: 1;">
     <p align='justify'> 
-        Welcome ! I am currently doing research in the intersection of machine 
-        learning, bayesian optimization and molecular modelling.
+        Welcome ! I am currently doing research in the intersection of
+        machine learning, bayesian optimization and molecular modelling.
         I am broadly motivated by the question : 
         <b> How can we improve the accuracy and decrease the
-        cost of running atomistic bio-molecular simulations, in a way that is
+        cost of running atomistic bio-molecular simulations, 
+        in a way that is
         theoretically principled and practically impactful. </b>
     </p>
 
@@ -44,16 +45,18 @@ layout: home
 
     <p align="justify">
         After 4 years of doing research in material informatics, 
-        I now find myself fascinated to investigate bio-molecular mechanisms
-        facilitating cellular processes, with specific interest in ion-mediated 
-        processes. This has motivated me to revisit algorithmic development in 
-        force field design and enhanced sampling for atomistic 
-        bio-molecular simulations.
+        I am switching back to doing research in computational
+        biophysics.
+        Specifically, investigating bio-molecular mechanisms
+        facilitating ion mediated cellular processes through
+        the use of all-atom and coarse-grained molecular dynamics.
+        I am currently working in Dr. Pavel Jungwirth's group at IOCB,
+        Prague, parametrizing physics-based force fields using 
+        <a href="https://github.com/vojtechkostal/BayesicForceFields">Bayesian Force Fields</a>.
     </p>
 
     <p>
-        I am currently seeking postdoctoral opportunities in AI + Biophysics. 
-        I am a firm believer that the best insights come from unexpected conversations. 
+        I am currently seeking industry opportunities in AI + Biophysics. 
         Whether you are in academia, tech, want to nerd out about AI or just say Hi! - <a href="mailto:nikthota7@gmail.com">let's connect !</a>
     </p>
   </div>
@@ -181,5 +184,3 @@ layout: home
     <a onclick="filterNews('2022')" style="color: #0055ff">2022</a>
   </div>
 </div>
-
-
