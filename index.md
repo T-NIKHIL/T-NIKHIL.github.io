@@ -10,6 +10,7 @@ layout: home
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
   <div style="flex: 1;">
+  
     <p align='justify'> 
         Welcome ! I am currently doing research in the intersection of
         machine learning, bayesian optimization and molecular modelling.
@@ -18,29 +19,6 @@ layout: home
         cost of running atomistic bio-molecular simulations, 
         in a way that is
         theoretically principled and practically impactful. </b>
-    </p>
-
-    <p align='justify'> 
-        My doctoral research in 
-        <a href="https://chemistry.jhu.edu/directory/rigoberto-hernandez/" style="color: #0055ff"> 
-        Dr. Rigoberto Hernandez's lab </a> 
-        focused on developing models and algorithms that construct interpretable and
-        sparse embeddings for optimization of 
-        <a href="https://en.wikipedia.org/wiki/Perovskite" style="color: #0055ff"> 
-        metal halide perovskite (MHP) </a> 
-        properties in large-dimensional and low-data settings. 
-        Some of my notable research publications in this area are 
-        <a href="https://doi.org/10.1039/D3MH01484C" style="color: #0055ff"> 
-        constructing material embeddings using Nested Autoencoders </a> and
-        <a href="https://doi.org/10.1021/acs.jcim.4c01934" style="color: #0055ff">
-        sparse feature selection using multi-agent reinforcement learning </a>.
-        I completed my Master's thesis work in the same lab,
-        where I developed an algorithm for efficient 
-        simulations of protein unfolding and computation of the
-        <a href="https://en.wikipedia.org/wiki/Potential_of_mean_force" style="color: #0055ff"> 
-        potential of mean force </a>,
-        <a href="https://doi.org/10.1021/acs.jctc.2c00498" style="color: #0055ff">
-        using telescoping water boxes </a>.
     </p>
 
     <p align="justify">
@@ -57,7 +35,6 @@ layout: home
 
     <p>
         I am currently seeking industry opportunities in AI + Biophysics. 
-        Whether you are in academia, tech, want to nerd out about AI or just say Hi! - <a href="mailto:nikthota7@gmail.com">let's connect !</a>
     </p>
   </div>
   <div style="margin-left: 20px; margin-top: 5px">
